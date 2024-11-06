@@ -1,15 +1,16 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NumberVerifier.Services
 {
 	internal interface IApiReaderService
 	{
-		Task<string> ReadAsync(string baseAddress, string requestUri);
+		Task<IEnumerable<Root>> ReadAsync(string baseAddress, string requestUri);
 	}
 
 	internal class ApiReaderService : IApiReaderService
 	{
-		public async Task<string> ReadAsync(string baseAddress, string requestUri)
+		public async Task<IEnumerable<Root>> ReadAsync(string baseAddress, string requestUri)
 		{
 			using HttpClient client = new();
 
@@ -21,32 +22,74 @@ namespace NumberVerifier.Services
 
 			string result = await responseMessage.Content.ReadAsStringAsync();
 
-			return result ?? throw new InvalidOperationException("Result is null.");
+			IEnumerable<Root>? roots = JsonSerializer.Deserialize<IEnumerable<Root>>(result);
+
+			return roots ?? throw new InvalidOperationException("Result is null.");
 		}
 	}
 
-	public record Data(
-		[property: JsonPropertyName("color")] string color,
-		[property: JsonPropertyName("capacity")] string capacity,
-		[property: JsonPropertyName("capacity GB")] int? capacityGB,
-		[property: JsonPropertyName("price")] double? price,
-		[property: JsonPropertyName("generation")] string generation,
-		[property: JsonPropertyName("year")] int? year,
-		[property: JsonPropertyName("CPU model")] string CPUmodel,
-		[property: JsonPropertyName("Hard disk size")] string Harddisksize,
-		[property: JsonPropertyName("Strap Colour")] string StrapColour,
-		[property: JsonPropertyName("Case Size")] string CaseSize,
-		[property: JsonPropertyName("Color")] string Color,
-		[property: JsonPropertyName("Description")] string Description,
-		[property: JsonPropertyName("Capacity")] string Capacity,
-		[property: JsonPropertyName("Screen size")] double? Screensize,
-		[property: JsonPropertyName("Generation")] string Generation,
-		[property: JsonPropertyName("Price")] string Price
-	);
+	public class Data
+	{
+		[JsonPropertyName("color")]
+		public string? color { get; set; }
 
-	public record Root(
-		[property: JsonPropertyName("id")] string id,
-		[property: JsonPropertyName("name")] string name,
-		[property: JsonPropertyName("data")] Data data
-	);
+		[JsonPropertyName("capacity")]
+		public string? capacity { get; set; }
+
+		[JsonPropertyName("capacity GB")]
+		public int? capacityGB { get; set; }
+
+		[JsonPropertyName("price")]
+		public double? price { get; set; }
+
+		[JsonPropertyName("generation")]
+		public string? generation { get; set; }
+
+		[JsonPropertyName("year")]
+		public int? year { get; set; }
+
+		[JsonPropertyName("CPU model")]
+		public string? CPUmodel { get; set; }
+
+		[JsonPropertyName("Hard disk size")]
+		public string? Harddisksize { get; set; }
+
+		[JsonPropertyName("Strap Colour")]
+		public string? StrapColour { get; set; }
+
+		[JsonPropertyName("Case Size")]
+		public string? CaseSize { get; set; }
+
+		[JsonPropertyName("Color")]
+		public string? Color { get; set; }
+
+		[JsonPropertyName("Description")]
+		public string? Description { get; set; }
+
+		[JsonPropertyName("Capacity")]
+		public string? Capacity { get; set; }
+
+		[JsonPropertyName("Screen size")]
+		public double? Screensize { get; set; }
+
+		[JsonPropertyName("Generation")]
+		public string? Generation { get; set; }
+
+		[JsonPropertyName("Price")]
+		public string? Price { get; set; }
+	}
+
+	public class Root
+	{
+		[JsonPropertyName("id")]
+		public string? id { get; set; }
+
+		[JsonPropertyName("name")]
+		public string? name { get; set; }
+
+		[JsonPropertyName("data")]
+		public Data? data { get; set; }
+	}
+
+
 }

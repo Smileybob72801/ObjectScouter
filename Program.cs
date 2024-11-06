@@ -10,16 +10,16 @@ namespace NumberVerifier
 		{
 			IApiReaderService apiReaderService = new ApiReaderService();
 
-			UseApiAsync(apiReaderService);
+			var root = UseApiAsync(apiReaderService).Result;
 
 			Console.ReadKey();
         }
 
-		static async void UseApiAsync(IApiReaderService apiReaderService)
+		static async Task<IEnumerable<Root>> UseApiAsync(IApiReaderService apiReaderService)
 		{
 			var result = await apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
 
-            await Console.Out.WriteLineAsync(result);
+			return result;
         }
 	}
 }
