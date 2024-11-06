@@ -11,12 +11,29 @@ namespace NumberVerifier
 		{
 			IApiReaderService apiReaderService = new ApiReaderService();
 
-			var root = UseApiAsync(apiReaderService).Result;
+			try
+			{
+				IEnumerable<Root> roots = GetAllObjects(apiReaderService).Result;
+
+				PrintObjects(roots);
+			}
+			catch (Exception ex)
+			{
+                Console.WriteLine(ex);
+            }
 
 			Console.ReadKey();
         }
 
-		static async Task<IEnumerable<Root>> UseApiAsync(IApiReaderService apiReaderService)
+		private static void PrintObjects(IEnumerable<Root> objects)
+		{
+			foreach (Root root in objects)
+			{
+                Console.WriteLine(root);
+            }
+		}
+
+		static async Task<IEnumerable<Root>> GetAllObjects(IApiReaderService apiReaderService)
 		{
 			var result = await apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
 

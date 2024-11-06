@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text;
+using System.Text.Json.Serialization;
 
 namespace NumberVerifier.Model
 {
@@ -51,6 +52,23 @@ namespace NumberVerifier.Model
 
         [JsonPropertyName("Price")]
         public string? Price { get; set; }
+
+        public string GetNonNullProperties()
+        {
+            StringBuilder stringBuilder = new();
+
+            foreach (System.Reflection.PropertyInfo property in GetType().GetProperties())
+            {
+				object? value = property.GetValue(this);
+
+                if (value is not null)
+                {
+                    stringBuilder.AppendLine($"{property.Name}: {value}");
+                }
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 
 

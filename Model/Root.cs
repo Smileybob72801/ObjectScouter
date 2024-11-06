@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text;
+using System.Text.Json.Serialization;
 
 namespace NumberVerifier.Model
 {
@@ -12,7 +13,22 @@ namespace NumberVerifier.Model
 
         [JsonPropertyName("data")]
         public Data? data { get; set; }
-    }
 
+		public override string ToString()
+		{
+            StringBuilder stringBuilder = new();
 
+			stringBuilder.AppendLine($"Id: {id}");
+			stringBuilder.AppendLine($"Name: {name}");
+
+            if (data is not null)
+            {
+                string rootData = data.GetNonNullProperties();
+
+                stringBuilder.AppendLine(rootData); 
+            }
+
+            return stringBuilder.ToString();
+		}
+	}
 }
