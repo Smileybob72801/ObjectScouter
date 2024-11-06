@@ -1,8 +1,9 @@
-﻿using NumberVerifier.Services;
+﻿using NumberVerifier.Model;
+using NumberVerifier.Services;
 
 namespace NumberVerifier
 {
-	internal class Program
+    internal class Program
 	{
 		const string ApiBaseAddress = "https://api.restful-api.dev/";
 		const string RequestUri = "/objects";
