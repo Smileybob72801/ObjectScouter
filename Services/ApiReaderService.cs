@@ -15,7 +15,7 @@
 
 			HttpResponseMessage responseMessage = await client.GetAsync(requestUri);
 
-			responseMessage.EnsureSuccessStatusCode();
+            responseMessage.EnsureSuccessStatusCode();
 
 			string result = await responseMessage.Content.ReadAsStringAsync();
 
