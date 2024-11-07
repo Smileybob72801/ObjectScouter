@@ -11,13 +11,15 @@ namespace AsyncRestApi.App
 
         private readonly IApiReaderService _apiReaderService = apiReaderService;
 
+        private readonly IEnumerable<PropertyInfo>? _properties;
+
         public void Run()
         {
             IEnumerable<Item> items = GetAllObjects(_apiReaderService).Result;
 
             PrintObjects(items);
 
-            FindProperty(items);
+            FindPropertyByName(items);
         }
 
         private void PrintObjects(IEnumerable<Item> objects)
@@ -35,7 +37,12 @@ namespace AsyncRestApi.App
             return result;
         }
 
-        private void FindProperty(IEnumerable<Item> items)
+        private void ListProperties()
+        {
+
+        }
+
+        private void FindPropertyByName(IEnumerable<Item> items)
         {
             foreach (Item item in items)
             {
