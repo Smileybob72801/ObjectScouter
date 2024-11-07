@@ -4,35 +4,58 @@ using System.Reflection;
 
 namespace AsyncRestApi.App
 {
-    internal class AsyncApiApp(IApiReaderService apiReaderService)
-    {
-        const string ApiBaseAddress = "https://api.restful-api.dev/";
+    internal class AsyncApiApp
+	{
+		const string ApiBaseAddress = "https://api.restful-api.dev/";
         const string RequestUri = "/objects";
 
-        private readonly IApiReaderService _apiReaderService = apiReaderService;
+        private readonly IApiReaderService _apiReaderService;
 
-        private readonly IEnumerable<PropertyInfo>? _properties;
+		private readonly IEnumerable<PropertyInfo> _properties;
 
-        public void Run()
+        private readonly IEnumerable<Item> _items;
+
+		public AsyncApiApp(IApiReaderService apiReaderService)
+		{
+			_apiReaderService = apiReaderService;
+
+            _items = GetAllObjects().Result;
+
+            _properties = FindAllProperties();
+		}
+
+		public void Run()
         {
-            IEnumerable<Item> items = GetAllObjects(_apiReaderService).Result;
+            PrintObjects();
 
-            PrintObjects(items);
-
-            FindPropertyByName(items);
+            FindPropertyByName();
         }
 
-        private void PrintObjects(IEnumerable<Item> objects)
+        private void PrintObjects()
         {
-            foreach (Item item in objects)
+            foreach (Item item in _items)
             {
                 Console.WriteLine(item);
             }
         }
 
-        private async Task<IEnumerable<Item>> GetAllObjects(IApiReaderService apiReaderService)
+        private async Task<IEnumerable<Item>> GetAllObjects()
         {
-            var result = await apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
+            var result = await _apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
+
+            return result;
+        }
+
+        private IEnumerable<PropertyInfo> FindAllProperties()
+        {
+            List<PropertyInfo> result = [];
+
+            foreach (Item item in _items)
+            {
+                IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
+
+                result.AddRange(properties);
+            }
 
             return result;
         }
@@ -42,9 +65,9 @@ namespace AsyncRestApi.App
 
         }
 
-        private void FindPropertyByName(IEnumerable<Item> items)
+        private void FindPropertyByName()
         {
-            foreach (Item item in items)
+            foreach (Item item in _items)
             {
 				IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
 
