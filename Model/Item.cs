@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
 
-namespace NumberVerifier.Model
+namespace AsyncRestApi.Model
 {
     public class Item
     {

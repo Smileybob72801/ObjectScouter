@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using NumberVerifier.Model;
+using AsyncRestApi.Model;
 
-namespace NumberVerifier.Services
+namespace AsyncRestApi.Services
 {
     internal interface IApiReaderService
 	{

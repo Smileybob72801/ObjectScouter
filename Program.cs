@@ -1,7 +1,7 @@
-﻿using NumberVerifier.Model;
-using NumberVerifier.Services;
+﻿using AsyncRestApi.Model;
+using AsyncRestApi.Services;
 
-namespace NumberVerifier
+namespace AsyncRestApi
 {
     internal class Program
 	{

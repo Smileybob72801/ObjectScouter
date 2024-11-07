@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Reflection;
 
-namespace NumberVerifier.Model
+namespace AsyncRestApi.Model
 {
     public class Data
     {
