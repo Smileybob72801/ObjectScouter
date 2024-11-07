@@ -1,5 +1,6 @@
 ﻿using AsyncRestApi.Model;
 using AsyncRestApi.Services;
+using System.Reflection;
 
 namespace AsyncRestApi.App
 {
@@ -15,6 +16,8 @@ namespace AsyncRestApi.App
             IEnumerable<Item> items = GetAllObjects(_apiReaderService).Result;
 
             PrintObjects(items);
+
+            FindProperty(items);
         }
 
         private void PrintObjects(IEnumerable<Item> objects)
@@ -30,6 +33,22 @@ namespace AsyncRestApi.App
             var result = await apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
 
             return result;
+        }
+
+        private void FindProperty(IEnumerable<Item> items)
+        {
+            foreach (Item item in items)
+            {
+				IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
+
+                foreach (PropertyInfo property in properties)
+                {
+                    if (property.Name.Equals("description", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine($"Found a matching property: {property.Name}");
+                    }
+                }
+            }
         }
     }
 }

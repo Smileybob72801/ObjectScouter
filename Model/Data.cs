@@ -54,26 +54,42 @@ namespace AsyncRestApi.Model
         [JsonPropertyName("Price")]
         public string? Price { get; set; }
 
-        public string GetNonNullProperties()
+        public string ToPropertyString()
         {
             StringBuilder stringBuilder = new();
 
-            Type dataType = typeof(Data);
-
-			PropertyInfo[] properties = dataType.GetProperties();
+			IEnumerable<PropertyInfo> properties = GetNonNullProperties();
 
             foreach (PropertyInfo property in properties)
             {
 				object? value = property.GetValue(this);
 
-                if (value is not null)
-                {
-                    stringBuilder.AppendLine($"{property.Name}: {value}");
-                }
-            }
+				stringBuilder.AppendLine($"{property.Name}: {value}");
+			}
 
             return stringBuilder.ToString();
         }
+
+        public IEnumerable<PropertyInfo> GetNonNullProperties()
+        {
+			Type dataType = typeof(Data);
+
+			PropertyInfo[] properties = dataType.GetProperties();
+
+            List<PropertyInfo> nonNullProperties = [];
+
+			foreach (PropertyInfo property in properties)
+			{
+				object? value = property.GetValue(this);
+
+				if (value is not null)
+				{
+					nonNullProperties.Add(property);
+				}
+			}
+
+			return nonNullProperties;
+		}
     }
 
 
