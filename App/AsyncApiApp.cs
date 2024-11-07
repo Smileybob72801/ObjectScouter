@@ -21,14 +21,14 @@ namespace AsyncRestApi.App
 
             _items = GetAllObjects().Result;
 
-            _properties = FindAllProperties();
+            _properties = GetAllProperties();
 		}
 
 		public void Run()
         {
             PrintObjects();
 
-            FindPropertyByName();
+            ListProperties();
         }
 
         private void PrintObjects()
@@ -46,15 +46,18 @@ namespace AsyncRestApi.App
             return result;
         }
 
-        private IEnumerable<PropertyInfo> FindAllProperties()
+        private HashSet<PropertyInfo> GetAllProperties()
         {
-            List<PropertyInfo> result = [];
+            HashSet<PropertyInfo> result = new (new PropertyInfoComparer());
 
             foreach (Item item in _items)
             {
                 IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
 
-                result.AddRange(properties);
+                foreach (PropertyInfo property in properties)
+                {
+                    result.Add(property);
+                }
             }
 
             return result;
@@ -62,7 +65,12 @@ namespace AsyncRestApi.App
 
         private void ListProperties()
         {
+            Console.WriteLine("Searchable properties: ");
 
+            foreach (PropertyInfo property in _properties)
+            {
+                Console.WriteLine(property.Name);
+            }
         }
 
         private void FindPropertyByName()
@@ -79,6 +87,19 @@ namespace AsyncRestApi.App
                     }
                 }
             }
+        }
+    }
+
+    internal class PropertyInfoComparer : IEqualityComparer<PropertyInfo>
+    {
+        public bool Equals(PropertyInfo? x, PropertyInfo? y)
+        {
+            return string.Equals(x?.Name, y?.Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int GetHashCode(PropertyInfo obj)
+        {
+            return obj.Name.ToLowerInvariant().GetHashCode();
         }
     }
 }
