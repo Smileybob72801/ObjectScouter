@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
+using System.Reflection;
 
 namespace NumberVerifier.Model
 {
@@ -57,7 +58,11 @@ namespace NumberVerifier.Model
         {
             StringBuilder stringBuilder = new();
 
-            foreach (System.Reflection.PropertyInfo property in GetType().GetProperties())
+            Type dataType = typeof(Data);
+
+			PropertyInfo[] properties = dataType.GetProperties();
+
+            foreach (PropertyInfo property in properties)
             {
 				object? value = property.GetValue(this);
 

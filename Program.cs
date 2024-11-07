@@ -13,9 +13,9 @@ namespace NumberVerifier
 
 			try
 			{
-				IEnumerable<Root> roots = GetAllObjects(apiReaderService).Result;
+				IEnumerable<Item> items = GetAllObjects(apiReaderService).Result;
 
-				PrintObjects(roots);
+				PrintObjects(items);
 			}
 			catch (Exception ex)
 			{
@@ -25,15 +25,15 @@ namespace NumberVerifier
 			Console.ReadKey();
         }
 
-		private static void PrintObjects(IEnumerable<Root> objects)
+		private static void PrintObjects(IEnumerable<Item> objects)
 		{
-			foreach (Root root in objects)
+			foreach (Item item in objects)
 			{
-                Console.WriteLine(root);
+                Console.WriteLine(item);
             }
 		}
 
-		static async Task<IEnumerable<Root>> GetAllObjects(IApiReaderService apiReaderService)
+		static async Task<IEnumerable<Item>> GetAllObjects(IApiReaderService apiReaderService)
 		{
 			var result = await apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
 

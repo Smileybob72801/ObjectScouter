@@ -5,12 +5,12 @@ namespace NumberVerifier.Services
 {
     internal interface IApiReaderService
 	{
-		Task<IEnumerable<Root>> ReadAsync(string baseAddress, string requestUri);
+		Task<IEnumerable<Item>> ReadAsync(string baseAddress, string requestUri);
 	}
 
 	internal class ApiReaderService : IApiReaderService
 	{
-		public async Task<IEnumerable<Root>> ReadAsync(string baseAddress, string requestUri)
+		public async Task<IEnumerable<Item>> ReadAsync(string baseAddress, string requestUri)
 		{
 			using HttpClient client = new();
 
@@ -22,7 +22,7 @@ namespace NumberVerifier.Services
 
 			string result = await responseMessage.Content.ReadAsStringAsync();
 
-			IEnumerable<Root>? roots = JsonSerializer.Deserialize<IEnumerable<Root>>(result);
+			IEnumerable<Item>? roots = JsonSerializer.Deserialize<IEnumerable<Item>>(result);
 
 			return roots ?? throw new InvalidOperationException("Result is null.");
 		}

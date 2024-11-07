@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NumberVerifier.Model
 {
-    public class Root
+    public class Item
     {
         [JsonPropertyName("id")]
         public string? id { get; set; }
@@ -23,9 +23,9 @@ namespace NumberVerifier.Model
 
             if (data is not null)
             {
-                string rootData = data.GetNonNullProperties();
+                string itemData = data.GetNonNullProperties();
 
-                stringBuilder.AppendLine(rootData); 
+                stringBuilder.AppendLine(itemData); 
             }
 
             return stringBuilder.ToString();
