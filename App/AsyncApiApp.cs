@@ -1,6 +1,7 @@
 ﻿using AsyncRestApi.Model;
 using AsyncRestApi.Services;
 using AsyncRestApi.UserInteraction;
+using AsyncRestApi.Helpers;
 using System.Reflection;
 
 namespace AsyncRestApi.App
@@ -95,19 +96,6 @@ namespace AsyncRestApi.App
             }
 
             throw new InvalidOperationException($"Target instance must be {nameof(Data)} or {nameof(Item)}");
-        }
-    }
-
-    internal class PropertyInfoComparer : IEqualityComparer<PropertyInfo>
-    {
-        public bool Equals(PropertyInfo? x, PropertyInfo? y)
-        {
-            return string.Equals(x?.Name, y?.Name, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public int GetHashCode(PropertyInfo obj)
-        {
-            return obj.Name.ToLowerInvariant().GetHashCode();
         }
     }
 }
