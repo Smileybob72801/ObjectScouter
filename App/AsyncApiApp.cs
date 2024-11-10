@@ -36,7 +36,9 @@ namespace AsyncRestApi.App
 
             _userInteraction.ListProperties(_properties);
 
-            FindPropertyByName("capacity");
+            string targetProperty = _userInteraction.GetValidString("Enter a property to search for: ");
+
+            FindPropertyByName(targetProperty);
         }
 
         private async Task<IEnumerable<Item>> GetAllObjects()
@@ -77,7 +79,7 @@ namespace AsyncRestApi.App
 
 						object? value = property.GetValue(targetInstance);
 
-                        Console.WriteLine($"Found a matching property: {property.Name}, {value}");
+                        Console.WriteLine($"Found a matching property: {property.Name}: {value}");
                     }
                 }
             }

@@ -6,7 +6,7 @@ namespace AsyncRestApi.UserInteraction
     internal interface IUserInteraction
     {
         void DisplayText(string text);
-		string GetValidString();
+		string GetValidString(string prompt = "");
 		void ListProperties(IEnumerable<PropertyInfo> properties);
 		void PrintObjects(IEnumerable<Item> items);
 	}
@@ -18,12 +18,17 @@ namespace AsyncRestApi.UserInteraction
             Console.WriteLine(text);
         }
 
-        public string GetValidString()
+        public string GetValidString(string prompt = "")
         {
             string? result;
 
             do
             {
+				if (!string.IsNullOrEmpty(prompt))
+				{
+					DisplayText(prompt);
+				}
+
                 result = Console.ReadLine();
             }
             while (string.IsNullOrWhiteSpace(result));
