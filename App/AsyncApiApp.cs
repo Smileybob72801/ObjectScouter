@@ -29,6 +29,8 @@ namespace AsyncRestApi.App
             PrintObjects();
 
             ListProperties();
+
+            FindPropertyByName("capacity");
         }
 
         private void PrintObjects()
@@ -73,7 +75,7 @@ namespace AsyncRestApi.App
             }
         }
 
-        private void FindPropertyByName()
+        private void FindPropertyByName(string target)
         {
             foreach (Item item in _items)
             {
@@ -81,12 +83,31 @@ namespace AsyncRestApi.App
 
                 foreach (PropertyInfo property in properties)
                 {
-                    if (property.Name.Equals("description", StringComparison.OrdinalIgnoreCase))
+					if (property.Name.Contains(target, StringComparison.OrdinalIgnoreCase))
                     {
-                        Console.WriteLine($"Found a matching property: {property.Name}");
+						object? targetInstance = GetTargetInstance(item, property);
+
+						object? value = property.GetValue(targetInstance);
+
+                        Console.WriteLine($"Found a matching property: {property.Name}, {value}");
                     }
                 }
             }
+        }
+
+        private object? GetTargetInstance(Item item, PropertyInfo property)
+        {
+            if (property.DeclaringType == typeof(Item))
+            {
+                return item;
+            }
+
+            if (property.DeclaringType == typeof(Data))
+            {
+                return item.data;
+            }
+
+            throw new InvalidOperationException($"Target instance must be {nameof(Data)} or {nameof(Item)}");
         }
     }
 
