@@ -1,11 +1,13 @@
 ﻿using AsyncRestApi.Model;
+using System.Reflection;
 
 namespace AsyncRestApi.UserInteraction
 {
     internal interface IUserInteraction
     {
-        public void DisplayText(string text);
+        void DisplayText(string text);
 		string GetValidString();
+		void ListProperties(IEnumerable<PropertyInfo> properties);
 		void PrintObjects(IEnumerable<Item> items);
 	}
 
@@ -36,5 +38,17 @@ namespace AsyncRestApi.UserInteraction
 				Console.WriteLine(item);
 			}
 		}
+
+		public void ListProperties(IEnumerable<PropertyInfo> properties)
+		{
+			Console.WriteLine("Searchable properties: ");
+
+			foreach (PropertyInfo property in properties)
+			{
+				Console.WriteLine(property.Name);
+			}
+
+            Console.WriteLine();
+        }
 	}
 }

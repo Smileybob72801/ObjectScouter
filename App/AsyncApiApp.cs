@@ -33,7 +33,7 @@ namespace AsyncRestApi.App
         {
             _userInteraction.PrintObjects(_items);
 
-            ListProperties();
+            _userInteraction.ListProperties(_properties);
 
             FindPropertyByName("capacity");
         }
@@ -60,16 +60,6 @@ namespace AsyncRestApi.App
             }
 
             return result;
-        }
-
-        private void ListProperties()
-        {
-            Console.WriteLine("Searchable properties: ");
-
-            foreach (PropertyInfo property in _properties)
-            {
-                Console.WriteLine(property.Name);
-            }
         }
 
         private void FindPropertyByName(string target)
