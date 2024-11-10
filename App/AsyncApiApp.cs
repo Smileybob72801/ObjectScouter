@@ -1,10 +1,11 @@
 ﻿using AsyncRestApi.Model;
 using AsyncRestApi.Services;
+using AsyncRestApi.UserInteraction;
 using System.Reflection;
 
 namespace AsyncRestApi.App
 {
-    internal class AsyncApiApp
+	internal class AsyncApiApp
 	{
 		const string ApiBaseAddress = "https://api.restful-api.dev/";
         const string RequestUri = "/objects";
@@ -15,30 +16,26 @@ namespace AsyncRestApi.App
 
         private readonly IEnumerable<Item> _items;
 
-		public AsyncApiApp(IApiReaderService apiReaderService)
+        private readonly IUserInteraction _userInteraction;
+
+		public AsyncApiApp(IApiReaderService apiReaderService, IUserInteraction userInteraction)
 		{
 			_apiReaderService = apiReaderService;
 
             _items = GetAllObjects().Result;
 
             _properties = GetAllProperties();
+
+            _userInteraction = userInteraction;
 		}
 
 		public void Run()
         {
-            PrintObjects();
+            _userInteraction.PrintObjects(_items);
 
             ListProperties();
 
             FindPropertyByName("capacity");
-        }
-
-        private void PrintObjects()
-        {
-            foreach (Item item in _items)
-            {
-                Console.WriteLine(item);
-            }
         }
 
         private async Task<IEnumerable<Item>> GetAllObjects()

@@ -1,5 +1,6 @@
 ﻿using AsyncRestApi.App;
 using AsyncRestApi.Services;
+using AsyncRestApi.UserInteraction;
 
 namespace AsyncRestApi
 {
@@ -7,8 +8,9 @@ namespace AsyncRestApi
 	{
 		static void Main()
 		{
+			IUserInteraction userInteraction = new UserInteractionConsole();
 			IApiReaderService apiReaderService = new ApiReaderService();
-			AsyncApiApp asyncApiApp = new(apiReaderService);
+			AsyncApiApp asyncApiApp = new(apiReaderService, userInteraction);
 
 			try
 			{
