@@ -14,14 +14,16 @@ namespace AsyncRestApi
 
 			try
 			{
-				asyncApiApp.Run();
+				Task appTask = asyncApiApp.Run();
+				appTask.GetAwaiter().GetResult();
 			}
 			catch (Exception ex)
 			{
                 Console.WriteLine(ex);
             }
 
-			Console.ReadKey();
+            Console.WriteLine("Press any key to close application...");
+            Console.ReadKey();
         }
 	}
 }

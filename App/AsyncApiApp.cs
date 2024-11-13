@@ -13,36 +13,69 @@ namespace AsyncRestApi.App
 
         private readonly IApiReaderService _apiReaderService;
 
-		private readonly IEnumerable<PropertyInfo> _properties;
+		private IEnumerable<PropertyInfo>? _properties;
 
-        private readonly IEnumerable<Item> _items;
+        private IEnumerable<Item>? _items;
 
         private readonly IUserInteraction _userInteraction;
+
+        private readonly List<string> _menuOptions = ["Exit", "Search"];
 
 		public AsyncApiApp(IApiReaderService apiReaderService, IUserInteraction userInteraction)
 		{
 			_apiReaderService = apiReaderService;
 
-            _items = GetAllObjects().Result;
-
-            _properties = GetAllProperties();
-
             _userInteraction = userInteraction;
 		}
 
-		public void Run()
+		public async Task Run()
         {
-            _userInteraction.PrintObjects(_items);
+            _userInteraction.DisplayText("Contacting database...");
 
-            _userInteraction.ListProperties(_properties);
+            Task mainTask = Task.Run(async () =>
+            {
+				_items = await GetAllObjects();
+				_properties = GetAllProperties();
+				_userInteraction.PrintObjects(_items);
+				_userInteraction.ListProperties(_properties);
+			});
 
-            string targetProperty = _userInteraction.GetValidString("Enter a property to search for: ");
+            string choice = GetMenuChoice();
 
-            FindPropertyByName(targetProperty);
+            if (string.Equals(choice, "search", StringComparison.OrdinalIgnoreCase))
+            {
+				string targetProperty = _userInteraction.GetValidString("Enter a property to search for: ");
+				await mainTask;
+				FindPropertyByName(targetProperty);
+			}
+
+            _userInteraction.DisplayText("");
+        }
+
+        private string GetMenuChoice()
+        {
+            _userInteraction.DisplayText("Choose an option: ");
+
+            foreach (string option in _menuOptions)
+            {
+                _userInteraction.DisplayText($"{option}");
+            }
+
+            string result;
+
+            do
+            {
+                result = _userInteraction.GetValidString();
+            }
+            while (!_menuOptions.Contains(result, StringComparer.OrdinalIgnoreCase));
+
+            return result;
         }
 
         private async Task<IEnumerable<Item>> GetAllObjects()
         {
+            await Task.Delay(4000);
+
             var result = await _apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
 
             return result;
@@ -79,7 +112,7 @@ namespace AsyncRestApi.App
 
 						object? value = property.GetValue(targetInstance);
 
-                        Console.WriteLine($"Found a matching property: {property.Name}: {value}");
+                        _userInteraction.DisplayText($"Found an item with target property: {item.name} with {property.Name}: {value}");
                     }
                 }
             }
