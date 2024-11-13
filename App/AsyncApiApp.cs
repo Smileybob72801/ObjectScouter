@@ -6,27 +6,20 @@ using System.Reflection;
 
 namespace AsyncRestApi.App
 {
-	internal class AsyncApiApp
+	internal class AsyncApiApp(IApiReaderService apiReaderService, IUserInteraction userInteraction)
 	{
 		const string ApiBaseAddress = "https://api.restful-api.dev/";
         const string RequestUri = "/objects";
 
-        private readonly IApiReaderService _apiReaderService;
+        private readonly IApiReaderService _apiReaderService = apiReaderService;
 
 		private IEnumerable<PropertyInfo>? _properties;
 
         private IEnumerable<Item>? _items;
 
-        private readonly IUserInteraction _userInteraction;
+        private readonly IUserInteraction _userInteraction = userInteraction;
 
         private readonly List<string> _menuOptions = ["Exit", "Search"];
-
-		public AsyncApiApp(IApiReaderService apiReaderService, IUserInteraction userInteraction)
-		{
-			_apiReaderService = apiReaderService;
-
-            _userInteraction = userInteraction;
-		}
 
 		public async Task Run()
         {
@@ -85,6 +78,11 @@ namespace AsyncRestApi.App
         {
             HashSet<PropertyInfo> result = new (new PropertyInfoComparer());
 
+            if (_items is null)
+            {
+                throw new InvalidOperationException("Items is null.");
+            }
+
             foreach (Item item in _items)
             {
                 IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
@@ -100,7 +98,12 @@ namespace AsyncRestApi.App
 
         private void FindPropertyByName(string target)
         {
-            foreach (Item item in _items)
+			if (_items is null)
+			{
+				throw new InvalidOperationException("Items is null.");
+			}
+
+			foreach (Item item in _items)
             {
 				IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
 
