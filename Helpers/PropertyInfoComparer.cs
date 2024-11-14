@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AsyncRestApi.Helpers
+namespace ObjectScouter.Helpers
 {
     internal class PropertyInfoComparer : IEqualityComparer<PropertyInfo>
     {

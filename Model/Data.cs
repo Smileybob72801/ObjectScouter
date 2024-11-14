@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Reflection;
 
-namespace AsyncRestApi.Model
+namespace ObjectScouter.Model
 {
     public class Data
     {

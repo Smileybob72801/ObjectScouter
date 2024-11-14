@@ -1,8 +1,8 @@
-﻿using AsyncRestApi.App;
-using AsyncRestApi.Services;
-using AsyncRestApi.UserInteraction;
+﻿using ObjectScouter.App;
+using ObjectScouter.Services;
+using ObjectScouter.UserInteraction;
 
-namespace AsyncRestApi
+namespace ObjectScouter
 {
     internal class Program
 	{

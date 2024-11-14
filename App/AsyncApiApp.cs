@@ -1,10 +1,10 @@
-﻿using AsyncRestApi.Model;
-using AsyncRestApi.Services;
-using AsyncRestApi.UserInteraction;
-using AsyncRestApi.Helpers;
+﻿using ObjectScouter.Model;
+using ObjectScouter.Services;
+using ObjectScouter.UserInteraction;
+using ObjectScouter.Helpers;
 using System.Reflection;
 
-namespace AsyncRestApi.App
+namespace ObjectScouter.App
 {
 	internal class AsyncApiApp(IApiReaderService apiReaderService, IUserInteraction userInteraction)
 	{

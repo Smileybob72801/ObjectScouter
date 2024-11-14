@@ -1,7 +1,7 @@
-﻿using AsyncRestApi.Model;
+﻿using ObjectScouter.Model;
 using System.Reflection;
 
-namespace AsyncRestApi.UserInteraction
+namespace ObjectScouter.UserInteraction
 {
     internal interface IUserInteraction
     {

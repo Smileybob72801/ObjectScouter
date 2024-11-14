@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using AsyncRestApi.Model;
+using ObjectScouter.Model;
 
-namespace AsyncRestApi.Services
+namespace ObjectScouter.Services
 {
     internal interface IApiReaderService
 	{
