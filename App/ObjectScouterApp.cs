@@ -3,6 +3,7 @@ using ObjectScouter.Services;
 using ObjectScouter.UserInteraction;
 using ObjectScouter.Helpers;
 using System.Reflection;
+using System.Text.Json;
 
 namespace ObjectScouter.App
 {
@@ -21,11 +22,32 @@ namespace ObjectScouter.App
 
         private readonly List<string> _menuOptions = ["Exit", "Search"];
 
+        // This method does not really need to be async, this is just to demonstrate
+        // that the ui thread does not have to be blocked while work is being done.
 		public async Task Run()
         {
             _userInteraction.DisplayText("Contacting database...");
 
-            Task mainTask = Task.Run(async () =>
+            Data testData = new()
+			{
+				Color = "Neon Green",
+				Description = "Test description",
+				capacityGB = 100,
+				price = 999_999,
+				year = 1984
+			};
+
+
+            Item testItem = new()
+            {
+                id = "100",
+                name = "test",
+                data = testData
+            };
+
+			//await _apiReaderService.PostAsync(ApiBaseAddress, RequestUri, testItem);
+
+			Task mainTask = Task.Run(async () =>
             {
 				_items = await GetAllObjects();
 				_properties = GetAllProperties();

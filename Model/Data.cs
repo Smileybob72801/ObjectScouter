@@ -91,6 +91,4 @@ namespace ObjectScouter.Model
 			return nonNullProperties;
 		}
     }
-
-
 }

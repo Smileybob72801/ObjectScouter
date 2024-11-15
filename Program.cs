@@ -9,7 +9,8 @@ namespace ObjectScouter
 		static void Main()
 		{
 			IUserInteraction userInteraction = new UserInteractionConsole();
-			IApiReaderService apiReaderService = new ApiReaderService();
+			HttpClient httpClient = new();
+			IApiReaderService apiReaderService = new ApiReaderService(httpClient);
 			AsyncApiApp asyncApiApp = new(apiReaderService, userInteraction);
 
 			try
