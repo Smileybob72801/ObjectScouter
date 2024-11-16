@@ -1,6 +1,7 @@
 ﻿using ObjectScouter.App;
 using ObjectScouter.Services;
 using ObjectScouter.UserInteraction;
+using System.Net;
 
 namespace ObjectScouter
 {
@@ -8,10 +9,17 @@ namespace ObjectScouter
 	{
 		static void Main()
 		{
+			const string ApiBaseAddress = "https://api.restful-api.dev/";
+
 			IUserInteraction userInteraction = new UserInteractionConsole();
-			HttpClient httpClient = new();
+			HttpClient httpClient = new()
+			{
+				BaseAddress = new Uri(ApiBaseAddress)
+			};
 			IApiReaderService apiReaderService = new ApiReaderService(httpClient);
 			AsyncApiApp asyncApiApp = new(apiReaderService, userInteraction);
+
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
 			try
 			{

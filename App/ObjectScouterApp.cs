@@ -32,7 +32,7 @@ namespace ObjectScouter.App
 			{
 				Color = "Neon Green",
 				Description = "Test description",
-				capacityGB = 100,
+				capacityGB = 128,
 				price = 999_999,
 				year = 1984
 			};
@@ -40,12 +40,12 @@ namespace ObjectScouter.App
 
             Item testItem = new()
             {
-                id = "100",
+                id = "14",
                 name = "test",
                 data = testData
             };
 
-			//await _apiReaderService.PostAsync(ApiBaseAddress, RequestUri, testItem);
+			await _apiReaderService.PostAsync(RequestUri, testItem);
 
 			Task mainTask = Task.Run(async () =>
             {
@@ -54,13 +54,14 @@ namespace ObjectScouter.App
 				_userInteraction.PrintObjects(_items);
 				_userInteraction.ListProperties(_properties);
 			});
+			await mainTask;
 
-            string choice = GetMenuChoice();
+			string choice = GetMenuChoice();
 
             if (string.Equals(choice, "search", StringComparison.OrdinalIgnoreCase))
             {
 				string targetProperty = _userInteraction.GetValidString("Enter a property to search for: ");
-				await mainTask;
+				
 				FindPropertyByName(targetProperty);
 			}
 
@@ -89,9 +90,10 @@ namespace ObjectScouter.App
 
         private async Task<IEnumerable<Item>> GetAllObjects()
         {
-            await Task.Delay(4000);
+            // Just to simulate background work
+            //await Task.Delay(4000);
 
-            var result = await _apiReaderService.ReadAsync(ApiBaseAddress, RequestUri);
+            var result = await _apiReaderService.ReadAsync(RequestUri);
 
             return result;
         }
