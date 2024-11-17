@@ -170,19 +170,19 @@ namespace ObjectScouter.App
             }
         }
 
-        private object? GetTargetInstance(Item item, PropertyInfo property)
-        {
-            if (property.DeclaringType == typeof(Item))
-            {
-                return item;
-            }
+        //private object? GetTargetInstance(Item item, PropertyInfo property)
+        //{
+        //    if (property.DeclaringType == typeof(Item))
+        //    {
+        //        return item;
+        //    }
 
-            if (property.DeclaringType == typeof(Data))
-            {
-                return item.Data;
-            }
+        //    if (property.DeclaringType == typeof(Data))
+        //    {
+        //        return item.Data;
+        //    }
 
-            throw new InvalidOperationException($"Target instance must be {nameof(Data)} or {nameof(Item)}");
-        }
+        //    throw new InvalidOperationException($"Target instance must be {nameof(Data)} or {nameof(Item)}");
+        //}
     }
 }

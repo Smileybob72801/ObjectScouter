@@ -38,7 +38,7 @@ namespace ObjectScouter.UserInteraction
 
 		public void ListProperties(IEnumerable<string> properties)
 		{
-			Console.WriteLine("Searchable properties: ");
+			Console.WriteLine($"{Environment.NewLine}Searchable properties: ");
 
 			foreach (string property in properties)
 			{
