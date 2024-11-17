@@ -30,10 +30,14 @@ namespace ObjectScouter.App
 
         // This method does not really need to be async, this is just to demonstrate
         // that the ui thread does not have to be blocked while work is being done.
+        // Artificial delays have been added to various modules to aid demonstration.
 		public async Task Run()
         {
+            // TODO: Move all awaited Tasks to another method so we can get to UI
+            await _itemRepository.LoadFromFileAsync();
             _userInteraction.DisplayText("Contacting database...");
 
+            // Test item
             Data testData = new()
 			{
 				Color = "Neon Green",
@@ -52,6 +56,7 @@ namespace ObjectScouter.App
             };
 
 			await _apiReaderService.PostAsync(RequestUri, testItem);
+            // End test
 
 			Task mainTask = Task.Run(async () =>
             {
