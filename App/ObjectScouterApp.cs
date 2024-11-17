@@ -37,7 +37,8 @@ namespace ObjectScouter.App
             await _itemRepository.LoadFromFileAsync();
             _userInteraction.DisplayText("Contacting database...");
 
-            // Test item
+            // Demo Data
+            /*
             Data testData = new()
 			{
 				Color = "Neon Green",
@@ -56,11 +57,15 @@ namespace ObjectScouter.App
             };
 
 			await _apiReaderService.PostAsync(RequestUri, testItem);
-            // End test
+            */
 
 			Task mainTask = Task.Run(async () =>
             {
-				_items = await GetAllObjects();
+                //_items = await GetAllObjects();
+
+                Item testItem = await GetObjectById(_itemRepository.GetIds().First());
+                _items = [testItem];
+
 				_properties = GetAllProperties();
 				_userInteraction.PrintObjects(_items);
 				_userInteraction.ListProperties(_properties);
@@ -104,10 +109,18 @@ namespace ObjectScouter.App
             // Just to simulate background work
             //await Task.Delay(4000);
 
-            var result = await _apiReaderService.ReadAsync(RequestUri);
+            var result = await _apiReaderService.ReadAsync<IEnumerable<Item>>(RequestUri);
 
             return result;
         }
+
+        private async Task<Item> GetObjectById(string id)
+        {
+            string objectUri = RequestUri + $"/{id}";
+			var result = await _apiReaderService.ReadAsync<Item>(objectUri);
+
+			return result;
+		}
 
         private HashSet<PropertyInfo> GetAllProperties()
         {

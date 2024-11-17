@@ -10,14 +10,15 @@ namespace ObjectScouter.Services
 	internal interface IApiReaderService
 	{
 		Task PostAsync(string requestUri, Item item);
-		Task<IEnumerable<Item>> ReadAsync(string requestUri);
+		Task<T> ReadAsync<T>(string requestUri);
 	}
 
 	internal partial class ApiReaderService(HttpClient httpClient, IItemRepository itemRepository) : IApiReaderService
 	{
 		private readonly HttpClient _httpClient = httpClient;
 		private readonly IItemRepository _itemRepository = itemRepository;
-		public async Task<IEnumerable<Item>> ReadAsync(string requestUri)
+
+		public async Task<T> ReadAsync<T>(string requestUri)
 		{
 			HttpResponseMessage responseMessage = await _httpClient.GetAsync(requestUri);
 
@@ -25,7 +26,7 @@ namespace ObjectScouter.Services
 
 			string result = await responseMessage.Content.ReadAsStringAsync();
 
-			IEnumerable<Item>? roots = JsonSerializer.Deserialize<IEnumerable<Item>>(result);
+			T? roots = JsonSerializer.Deserialize<T>(result);
 
 			return roots ?? throw new InvalidOperationException("Result is null.");
 		}
