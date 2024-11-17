@@ -33,21 +33,20 @@ namespace ObjectScouter.App
         // Artificial delays have been added to various modules to aid demonstration.
 		public async Task Run()
         {
-            // TODO: Move all awaited Tasks to another method so we can get to UI
-            await _itemRepository.LoadFromFileAsync();
+			// TODO: Move all awaited Tasks to another method so we can get to UI
+			await _itemRepository.LoadFromFileAsync();
             _userInteraction.DisplayText("Contacting database...");
 
             //Demo Data
-            //Item dynamicTestItem = new()
+            //Item noIdItem = new()
             //{
-            //    Id = "15",
-            //    Name = "Dynamic Test Item"
+            //    Name = "No Id Item"
             //};
 
-            //dynamicTestItem.Data["Opacity"] = "60%";
-            //dynamicTestItem.Data["Layers"] = 7;
+            //noIdItem.Data["Flavor"] = "Cherry";
+            //noIdItem.Data["Shape"] = "Tube";
 
-            //await _apiReaderService.PostAsync(RequestUri, dynamicTestItem);
+            //await _apiReaderService.PostAsync(RequestUri, noIdItem);
 
 
             Task mainTask = Task.Run(async () =>
@@ -59,18 +58,28 @@ namespace ObjectScouter.App
                 //_items = [testItem];
 
 				_properties = GetAllProperties();
-				_userInteraction.PrintObjects(_items);
-				_userInteraction.ListProperties(_properties);
+				//_userInteraction.PrintObjects(_items);
+				
 			});
-			await mainTask;
 
 			string choice = GetMenuChoice();
 
+			await mainTask;
+
             if (string.Equals(choice, "search", StringComparison.OrdinalIgnoreCase))
             {
-				string targetProperty = _userInteraction.GetValidString("Enter a property to search for: ");
-				
-				FindPropertyByName(targetProperty);
+                if (_properties is not null)
+                {
+					_userInteraction.ListProperties(_properties);
+
+					string targetProperty = _userInteraction.GetValidString("Enter a property to search for: ");
+
+					FindPropertyByName(targetProperty);
+				}
+                else
+                {
+                    _userInteraction.DisplayText("No properties found to search for.");
+                }
 			}
 
             _userInteraction.DisplayText("");
