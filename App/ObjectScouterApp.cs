@@ -49,7 +49,9 @@ namespace ObjectScouter.App
         {
 			// TODO: Move all awaited Tasks to another method so we can get to UI
 			await _itemRepository.LoadFromFileAsync();
-            _userInteraction.DisplayText("Contacting database...");
+
+            string connectingMessage = "Contacting database...";
+			_userInteraction.DisplayText(connectingMessage);
 
             //Demo Data
             //Item noIdItem = new()
@@ -144,7 +146,7 @@ namespace ObjectScouter.App
 
         private string GetMenuChoice()
         {
-            _userInteraction.DisplayText("Choose an option: ");
+            _userInteraction.DisplayText($"{Environment.NewLine}Choose an option: ");
 
             foreach (var option in _menuOptions)
             {

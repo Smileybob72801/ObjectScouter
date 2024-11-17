@@ -30,8 +30,6 @@ namespace ObjectScouter.UserInteraction
 
 		public void PrintObjects(IEnumerable<Item> items)
 		{
-			DisplayText("");
-
 			foreach (Item item in items)
 			{
 				DisplayText(item.ToString());
