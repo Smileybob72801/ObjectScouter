@@ -2,14 +2,17 @@
 {
 	internal interface IItemRepository
 	{
-		void AddId(string id);
+		Task AddId(string id);
 		string GetIdAtIndex(int index);
 		IEnumerable<string> GetIds();
-		void RemoveId(string id);
+		Task LoadFromFileAsync();
+		Task RemoveId(string id);
+		Task SaveToFileAsync();
 	}
 
 	internal class ItemRepository : IItemRepository
 	{
+		private readonly string _filePath = "ids.txt";
 		private readonly List<string> _ids;
 
 		public ItemRepository()
@@ -17,7 +20,7 @@
 			_ids = [];
 		}
 
-		public void AddId(string id)
+		public async Task AddId(string id)
 		{
 			if (string.IsNullOrWhiteSpace(id))
 			{
@@ -25,6 +28,8 @@
 			}
 
 			_ids.Add(id);
+
+			await SaveToFileAsync();
 
 			Console.WriteLine($"ID {id} added to repository.");
 		}
@@ -39,15 +44,30 @@
 			return _ids[index];
 		}
 
-		public void RemoveId(string id)
+		public async Task RemoveId(string id)
 		{
 			if (_ids.Remove(id))
 			{
 				Console.WriteLine($"ID {id} removed.");
+				await SaveToFileAsync();
 			}
 			else
 			{
 				Console.WriteLine($"ID {id} not found.");
+			}
+		}
+
+		public async Task SaveToFileAsync()
+		{
+			await File.WriteAllLinesAsync(_filePath, _ids);
+		}
+
+		public async Task LoadFromFileAsync()
+		{
+			if (File.Exists(_filePath))
+			{
+				string[] lines = await File.ReadAllLinesAsync(_filePath);
+				_ids.AddRange(lines);
 			}
 		}
 	}

@@ -4,10 +4,14 @@ using ObjectScouter.UserInteraction;
 using ObjectScouter.Helpers;
 using System.Reflection;
 using System.Text.Json;
+using ObjectScouter.Repositories;
 
 namespace ObjectScouter.App
 {
-	internal class AsyncApiApp(IApiReaderService apiReaderService, IUserInteraction userInteraction)
+	internal class AsyncApiApp(
+        IApiReaderService apiReaderService,
+        IUserInteraction userInteraction,
+        IItemRepository itemRepository)
 	{
 		const string ApiBaseAddress = "https://api.restful-api.dev/";
         const string RequestUri = "/objects";
@@ -19,6 +23,8 @@ namespace ObjectScouter.App
         private IEnumerable<Item>? _items;
 
         private readonly IUserInteraction _userInteraction = userInteraction;
+
+        private readonly IItemRepository _itemRepository = itemRepository;
 
         private readonly List<string> _menuOptions = ["Exit", "Search"];
 

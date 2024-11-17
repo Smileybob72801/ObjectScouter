@@ -3,6 +3,7 @@ using ObjectScouter.Model;
 using System.Net.Http;
 using System.Text;
 using System.Net.Http.Json;
+using ObjectScouter.Repositories;
 
 namespace ObjectScouter.Services
 {
@@ -12,9 +13,10 @@ namespace ObjectScouter.Services
 		Task<IEnumerable<Item>> ReadAsync(string requestUri);
 	}
 
-	internal partial class ApiReaderService(HttpClient httpClient) : IApiReaderService
+	internal partial class ApiReaderService(HttpClient httpClient, IItemRepository itemRepository) : IApiReaderService
 	{
 		private readonly HttpClient _httpClient = httpClient;
+		private readonly IItemRepository _itemRepository = itemRepository;
 		public async Task<IEnumerable<Item>> ReadAsync(string requestUri)
 		{
 			HttpResponseMessage responseMessage = await _httpClient.GetAsync(requestUri);
@@ -41,6 +43,12 @@ namespace ObjectScouter.Services
 				string responseBody  = await responseMessage.Content.ReadAsStringAsync();
                 await Console.Out.WriteLineAsync("Successfull response:");
                 await Console.Out.WriteLineAsync(responseBody);
+				Item? returnedAsPosted = JsonSerializer.Deserialize<Item>(responseBody);
+				string? postedId = returnedAsPosted?.id;
+				if (postedId is not null)
+				{
+					await _itemRepository.AddId(postedId); 
+				}
             }
 			else
 			{

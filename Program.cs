@@ -1,4 +1,5 @@
 ﻿using ObjectScouter.App;
+using ObjectScouter.Repositories;
 using ObjectScouter.Services;
 using ObjectScouter.UserInteraction;
 using System.Net;
@@ -16,8 +17,9 @@ namespace ObjectScouter
 			{
 				BaseAddress = new Uri(ApiBaseAddress)
 			};
-			IApiReaderService apiReaderService = new ApiReaderService(httpClient);
-			AsyncApiApp asyncApiApp = new(apiReaderService, userInteraction);
+			IItemRepository itemRepository = new ItemRepository();
+			IApiReaderService apiReaderService = new ApiReaderService(httpClient, itemRepository);
+			AsyncApiApp asyncApiApp = new(apiReaderService, userInteraction, itemRepository);
 
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
