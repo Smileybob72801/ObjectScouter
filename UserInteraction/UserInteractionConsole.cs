@@ -30,22 +30,29 @@ namespace ObjectScouter.UserInteraction
 
 		public void PrintObjects(IEnumerable<Item> items)
 		{
+			DisplayText("");
+
 			foreach (Item item in items)
 			{
-				Console.WriteLine(item);
+				DisplayText(item.ToString());
 			}
 		}
 
 		public void ListProperties(IEnumerable<string> properties)
 		{
-			Console.WriteLine($"{Environment.NewLine}Searchable properties: ");
+			DisplayText($"{Environment.NewLine}Searchable properties: ");
 
 			foreach (string property in properties)
 			{
-				Console.WriteLine(property);
+				DisplayText(property);
 			}
 
-            Console.WriteLine();
+			DisplayText("");
         }
+
+		public void WaitForAnyInput()
+		{
+			Console.ReadKey();
+		}
 	}
 }

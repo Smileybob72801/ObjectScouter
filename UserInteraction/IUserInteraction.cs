@@ -9,5 +9,6 @@ namespace ObjectScouter.UserInteraction
 		string GetValidString(string prompt = "");
 		void ListProperties(IEnumerable<string> properties);
 		void PrintObjects(IEnumerable<Item> items);
+		void WaitForAnyInput();
 	}
 }

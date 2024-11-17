@@ -8,29 +8,43 @@ using ObjectScouter.Repositories;
 
 namespace ObjectScouter.App
 {
-	internal class AsyncApiApp(
-        IApiReaderService apiReaderService,
-        IUserInteraction userInteraction,
-        IItemRepository itemRepository)
+	internal class AsyncApiApp
 	{
 		const string ApiBaseAddress = "https://api.restful-api.dev/";
         const string RequestUri = "/objects";
 
-        private readonly IApiReaderService _apiReaderService = apiReaderService;
+        private readonly IApiReaderService _apiReaderService;
 
 		private HashSet<string>? _properties;
 
         private IEnumerable<Item>? _items;
 
-        private readonly IUserInteraction _userInteraction = userInteraction;
+        private readonly IUserInteraction _userInteraction;
 
-        private readonly IItemRepository _itemRepository = itemRepository;
+		private readonly IItemRepository _itemRepository;
 
-        private readonly List<string> _menuOptions = ["Exit", "Search"];
+        private readonly Dictionary<string, Action> _menuOptions;
 
-        // This method does not really need to be async, this is just to demonstrate
-        // that the ui thread does not have to be blocked while work is being done.
-        // Artificial delays have been added to various modules to aid demonstration.
+		public AsyncApiApp(
+        IApiReaderService apiReaderService,
+        IUserInteraction userInteraction,
+        IItemRepository itemRepository)
+		{
+			_apiReaderService = apiReaderService;
+			_userInteraction = userInteraction;
+			_itemRepository = itemRepository;
+
+            _menuOptions = new Dictionary<string, Action>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Search", HandleSearch },
+                { "List Items", HandleListItems },
+                { "Exit", HandleExit },
+            };
+		}
+
+		// This method does not really need to be async, this is just to demonstrate
+		// that the ui thread does not have to be blocked while work is being done.
+		// Artificial delays have been added to various modules to aid demonstration.
 		public async Task Run()
         {
 			// TODO: Move all awaited Tasks to another method so we can get to UI
@@ -49,7 +63,7 @@ namespace ObjectScouter.App
             //await _apiReaderService.PostAsync(RequestUri, noIdItem);
 
 
-            Task mainTask = Task.Run(async () =>
+            Task? mainTask = Task.Run(async () =>
             {
                 _items = await GetAllObjects();
 
@@ -58,49 +72,88 @@ namespace ObjectScouter.App
                 //_items = [testItem];
 
 				_properties = GetAllProperties();
-				//_userInteraction.PrintObjects(_items);
-				
 			});
 
-			string choice = GetMenuChoice();
+            string choice;
+            do
+			{
+				choice = GetMenuChoice();
 
-			await mainTask;
+				await AwaitTaskIfPending(mainTask);
 
-            if (string.Equals(choice, "search", StringComparison.OrdinalIgnoreCase))
-            {
-                if (_properties is not null)
-                {
-					_userInteraction.ListProperties(_properties);
-
-					string targetProperty = _userInteraction.GetValidString("Enter a property to search for: ");
-
-					FindPropertyByName(targetProperty);
-				}
-                else
-                {
-                    _userInteraction.DisplayText("No properties found to search for.");
-                }
+				HandleMenuChoice(choice);
 			}
-
-            _userInteraction.DisplayText("");
+			while (!string.Equals(choice, "exit", StringComparison.OrdinalIgnoreCase));
         }
+
+		private static async Task AwaitTaskIfPending(Task? task)
+		{
+			if (task is not null)
+			{
+				await task;
+				task = null;
+				_ = task?.Status; // Line needed to satisfy compiler, no function.
+			}
+		}
+
+		private void HandleMenuChoice(string choice)
+        {
+            if (_menuOptions.TryGetValue(choice, out Action? action))
+            {
+                action();
+            }
+            else
+            {
+                _userInteraction.DisplayText("Invalid choice.");
+            }
+		}
+
+        private void HandleSearch()
+        {
+			if (_properties is not null)
+			{
+				_userInteraction.ListProperties(_properties);
+
+				string targetProperty = _userInteraction.GetValidString($"Enter a property to search for:{Environment.NewLine}");
+
+				FindPropertyByName(targetProperty);
+			}
+			else
+			{
+				_userInteraction.DisplayText("No properties found to search for.");
+			}
+		}
+
+        private void HandleListItems()
+        {
+			if (_items is not null)
+			{
+				_userInteraction.PrintObjects(_items);
+			}
+			else
+			{
+				_userInteraction.DisplayText("No items to display.");
+			}
+		}
+
+        private void HandleExit()
+        {
+			_userInteraction.DisplayText($"{Environment.NewLine}Press any key to close application...");
+            _userInteraction.WaitForAnyInput();
+		}
 
         private string GetMenuChoice()
         {
             _userInteraction.DisplayText("Choose an option: ");
 
-            foreach (string option in _menuOptions)
+            foreach (var option in _menuOptions)
             {
-                _userInteraction.DisplayText($"{option}");
+                _userInteraction.DisplayText($"{option.Key}");
             }
 
-            string result;
+            _userInteraction.DisplayText("");
 
-            do
-            {
-                result = _userInteraction.GetValidString();
-            }
-            while (!_menuOptions.Contains(result, StringComparer.OrdinalIgnoreCase));
+            string result = _userInteraction.GetValidString();
 
             return result;
         }
@@ -147,9 +200,11 @@ namespace ObjectScouter.App
 
         private void FindPropertyByName(string target)
         {
+            _userInteraction.DisplayText("");
+
 			if (_items is null)
 			{
-				throw new InvalidOperationException("Items is null.");
+				throw new InvalidOperationException("No valid items to search.");
 			}
 
 			foreach (Item item in _items)

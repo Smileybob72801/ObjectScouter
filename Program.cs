@@ -32,9 +32,6 @@ namespace ObjectScouter
 			{
                 Console.WriteLine(ex);
             }
-
-            Console.WriteLine("Press any key to close application...");
-            Console.ReadKey();
         }
 	}
 }
