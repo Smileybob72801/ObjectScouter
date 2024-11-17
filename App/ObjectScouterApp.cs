@@ -164,7 +164,7 @@ namespace ObjectScouter.App
                         object propertyValue = property.Value;
 
                         _userInteraction.DisplayText(
-                            $"Found an item with target property: {item.Name} with {propertyName}: {propertyValue}");
+                            $"Found an item, {item.Name}, with {propertyName}: {propertyValue}");
                     }
                 }
             }
