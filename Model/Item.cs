@@ -7,60 +7,50 @@ namespace ObjectScouter.Model
     public class Item
     {
         [JsonPropertyName("id")]
-        public string? id { get; set; }
+        public string? Id { get; set; }
 
         [JsonPropertyName("name")]
-        public string? name { get; set; }
+        public string? Name { get; set; }
 
         [JsonPropertyName("data")]
-        public Data? data { get; set; }
+        public Dictionary<string, object> Data { get; set; } = [];
+        //public Data? data { get; set; }
 
 		public override string ToString()
 		{
             StringBuilder stringBuilder = new();
 
-			stringBuilder.AppendLine($"Id: {id}");
-			stringBuilder.AppendLine($"Name: {name}");
+			stringBuilder.AppendLine($"Id: {Id}");
+			stringBuilder.AppendLine($"Name: {Name}");
 
-            if (data is not null)
+            if (Data is not null && Data.Count > 0)
             {
-                string itemData = data.ToPropertyString();
-
-                stringBuilder.AppendLine(itemData); 
+				foreach (KeyValuePair<string, object> kvp in Data)
+                {
+                    if (kvp.Value is not null)
+                    {
+						stringBuilder.AppendLine($"{kvp.Key}: {kvp.Value}");
+					}
+                }
             }
 
             return stringBuilder.ToString();
 		}
 
-        public IEnumerable<PropertyInfo> GetNonNullProperties()
+        public IEnumerable<KeyValuePair<string, object>> GetNonNullProperties()
         {
-            Type itemType = typeof(Item);
-
-            List<PropertyInfo> nonNullProperties = [];
-
-            IEnumerable<PropertyInfo> properties = itemType.GetProperties();
-
-            foreach (PropertyInfo property in properties)
+            if (Data is null)
             {
-				object? value = property.GetValue(this);
+                yield break;
+            }
 
-                if (value is not null)
+            foreach (KeyValuePair<string, object> kvp in Data)
+            {
+                if (kvp.Value is not null)
                 {
-                    nonNullProperties.Add(property);
+                    yield return kvp;
                 }
             }
-
-            if (data is not null)
-            {
-                IEnumerable<PropertyInfo> dataProperties = data.GetNonNullProperties();
-                
-                foreach (PropertyInfo property in dataProperties)
-                {
-					nonNullProperties.Add(property);
-				}
-            }
-
-            return [.. nonNullProperties];
         }
 	}
 }

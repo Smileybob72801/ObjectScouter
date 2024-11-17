@@ -18,9 +18,27 @@ namespace ObjectScouter.Services
 		private readonly HttpClient _httpClient = httpClient;
 		private readonly IItemRepository _itemRepository = itemRepository;
 
+		private string BuildObjectsUri()
+		{
+			StringBuilder stringBuilder = new();
+
+			string[] ids = _itemRepository.GetIds().ToArray();
+
+			stringBuilder.Append($"?id={ids[0]}");
+
+			for (int i = 1; i < ids.Length; i++)
+			{
+				stringBuilder.Append($"&id={ids[i]}");
+			}
+
+			return stringBuilder.ToString();
+		}
+
 		public async Task<T> ReadAsync<T>(string requestUri)
 		{
-			HttpResponseMessage responseMessage = await _httpClient.GetAsync(requestUri);
+			string fullUri = requestUri + BuildObjectsUri();
+
+			HttpResponseMessage responseMessage = await _httpClient.GetAsync(fullUri);
 
             responseMessage.EnsureSuccessStatusCode();
 
@@ -45,7 +63,7 @@ namespace ObjectScouter.Services
                 await Console.Out.WriteLineAsync("Successfull response:");
                 await Console.Out.WriteLineAsync(responseBody);
 				Item? returnedAsPosted = JsonSerializer.Deserialize<Item>(responseBody);
-				string? postedId = returnedAsPosted?.id;
+				string? postedId = returnedAsPosted?.Id;
 				if (postedId is not null)
 				{
 					await _itemRepository.AddId(postedId); 

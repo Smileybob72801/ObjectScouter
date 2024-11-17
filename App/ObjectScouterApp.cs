@@ -18,7 +18,7 @@ namespace ObjectScouter.App
 
         private readonly IApiReaderService _apiReaderService = apiReaderService;
 
-		private IEnumerable<PropertyInfo>? _properties;
+		private HashSet<string>? _properties;
 
         private IEnumerable<Item>? _items;
 
@@ -37,34 +37,26 @@ namespace ObjectScouter.App
             await _itemRepository.LoadFromFileAsync();
             _userInteraction.DisplayText("Contacting database...");
 
-            // Demo Data
-            /*
-            Data testData = new()
-			{
-				Color = "Neon Green",
-				Description = "Test description",
-				capacityGB = 128,
-				price = 999_999,
-				year = 1984
-			};
+            //Demo Data
+            //Item dynamicTestItem = new()
+            //{
+            //    Id = "15",
+            //    Name = "Dynamic Test Item"
+            //};
+
+            //dynamicTestItem.Data["Opacity"] = "60%";
+            //dynamicTestItem.Data["Layers"] = 7;
+
+            //await _apiReaderService.PostAsync(RequestUri, dynamicTestItem);
 
 
-            Item testItem = new()
+            Task mainTask = Task.Run(async () =>
             {
-                id = "14",
-                name = "test",
-                data = testData
-            };
+                _items = await GetAllObjects();
 
-			await _apiReaderService.PostAsync(RequestUri, testItem);
-            */
-
-			Task mainTask = Task.Run(async () =>
-            {
-                //_items = await GetAllObjects();
-
-                Item testItem = await GetObjectById(_itemRepository.GetIds().First());
-                _items = [testItem];
+                // TODO: Update GetAllObjects to get all custom objects by id
+                //Item testItem = await GetObjectById(_itemRepository.GetIds().First());
+                //_items = [testItem];
 
 				_properties = GetAllProperties();
 				_userInteraction.PrintObjects(_items);
@@ -122,9 +114,9 @@ namespace ObjectScouter.App
 			return result;
 		}
 
-        private HashSet<PropertyInfo> GetAllProperties()
+        private HashSet<string> GetAllProperties()
         {
-            HashSet<PropertyInfo> result = new (new PropertyInfoComparer());
+            HashSet<string> result = new (new StringComparerIgnoreCase());
 
             if (_items is null)
             {
@@ -133,11 +125,11 @@ namespace ObjectScouter.App
 
             foreach (Item item in _items)
             {
-                IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
+				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
 
-                foreach (PropertyInfo property in properties)
+                foreach (var property in properties)
                 {
-                    result.Add(property);
+                    result.Add(property.Key);
                 }
             }
 
@@ -153,17 +145,17 @@ namespace ObjectScouter.App
 
 			foreach (Item item in _items)
             {
-				IEnumerable<PropertyInfo> properties = item.GetNonNullProperties();
+				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
 
-                foreach (PropertyInfo property in properties)
+                foreach (var property in properties)
                 {
-					if (property.Name.Contains(target, StringComparison.OrdinalIgnoreCase))
+                    if (property.Key.Contains(target, StringComparison.OrdinalIgnoreCase))
                     {
-						object? targetInstance = GetTargetInstance(item, property);
+                        string propertyName = property.Key;
+                        object propertyValue = property.Value;
 
-						object? value = property.GetValue(targetInstance);
-
-                        _userInteraction.DisplayText($"Found an item with target property: {item.name} with {property.Name}: {value}");
+                        _userInteraction.DisplayText(
+                            $"Found an item with target property: {item.Name} with {propertyName}: {propertyValue}");
                     }
                 }
             }
@@ -178,7 +170,7 @@ namespace ObjectScouter.App
 
             if (property.DeclaringType == typeof(Data))
             {
-                return item.data;
+                return item.Data;
             }
 
             throw new InvalidOperationException($"Target instance must be {nameof(Data)} or {nameof(Item)}");
