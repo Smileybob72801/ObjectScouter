@@ -69,7 +69,8 @@ namespace ObjectScouter.Services
 				{
 					await _itemRepository.AddId(postedId); 
 				}
-            }
+				Console.WriteLine($"ID {postedId} added to repository.");
+			}
 			else
 			{
                 await Console.Out.WriteLineAsync($"Failed with status code: {responseMessage.StatusCode}");

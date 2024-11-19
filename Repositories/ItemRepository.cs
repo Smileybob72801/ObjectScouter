@@ -6,7 +6,7 @@
 		string GetIdAtIndex(int index);
 		IEnumerable<string> GetIds();
 		Task LoadFromFileAsync();
-		Task RemoveId(string id);
+		Task<bool> RemoveId(string id);
 		Task SaveToFileAsync();
 	}
 
@@ -30,8 +30,6 @@
 			_ids.Add(id);
 
 			await SaveToFileAsync();
-
-			Console.WriteLine($"ID {id} added to repository.");
 		}
 
 		public IEnumerable<string> GetIds()
@@ -44,17 +42,15 @@
 			return _ids[index];
 		}
 
-		public async Task RemoveId(string id)
+		public async Task<bool> RemoveId(string id)
 		{
 			if (_ids.Remove(id))
 			{
-				Console.WriteLine($"ID {id} removed.");
 				await SaveToFileAsync();
+				return true;
 			}
-			else
-			{
-				Console.WriteLine($"ID {id} not found.");
-			}
+
+			return false;
 		}
 
 		public async Task SaveToFileAsync()

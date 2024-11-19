@@ -46,15 +46,15 @@ namespace ObjectScouter.App
 		// that the ui thread does not have to be blocked while work is being done.
 		// Artificial delays have been added to various modules to aid demonstration.
 		public async Task Run()
-        {
+		{
 			// TODO: Move all awaited Tasks to another method so we can get to UI
 			await _itemRepository.LoadFromFileAsync();
 
-            string connectingMessage = $"Contacting database...{Environment.NewLine}";
+			string connectingMessage = $"Contacting database...{Environment.NewLine}";
 			_userInteraction.DisplayText(connectingMessage);
 
-            //Demo Data
-            /*
+			//Demo Data
+			/*
             Item cherryTube = new()
             {
 				Name = "Cherry Tubes"
@@ -66,19 +66,10 @@ namespace ObjectScouter.App
             await _apiReaderService.PutAync(RequestUri, cherryTube);
             */
 
-            Task? mainTask = Task.Run(async () =>
-            {
-                _items = await GetAllObjects();
+			Task mainTask = MainTask();
 
-                // TODO: Update GetAllObjects to get all custom objects by id
-                //Item testItem = await GetObjectById(_itemRepository.GetIds().First());
-                //_items = [testItem];
-
-				_propertyNames = GetAllProperties();
-			});
-
-            string choice;
-            do
+			string choice;
+			do
 			{
 				choice = GetMenuChoice();
 
@@ -87,7 +78,22 @@ namespace ObjectScouter.App
 				HandleMenuChoice(choice);
 			}
 			while (!string.Equals(choice, "exit", StringComparison.OrdinalIgnoreCase));
-        }
+		}
+
+		private Task MainTask()
+		{
+			Task? mainTask = Task.Run(async () =>
+			{
+				_items = await GetAllObjects();
+
+				// TODO: Update GetAllObjects to get all custom objects by id
+				//Item testItem = await GetObjectById(_itemRepository.GetIds().First());
+				//_items = [testItem];
+
+				_propertyNames = GetAllProperties();
+			});
+			return mainTask;
+		}
 
 		private static async Task AwaitTaskIfPending(Task? task)
 		{
@@ -136,9 +142,45 @@ namespace ObjectScouter.App
 			}
 		}
 
-		private void HandleDeleteItem()
+		private async void HandleDeleteItem()
 		{
+            string userInput;
+            string cancelCommand = "cancel";
 
+            bool complete;
+            do
+            {
+                userInput = _userInteraction.GetValidString(
+                $"Enter ID of object to delete, or type 'Cancel':{Environment.NewLine}");
+
+                if (string.Equals(userInput, cancelCommand, StringComparison.OrdinalIgnoreCase))
+                {
+                    complete = true;
+                }
+                else
+                {
+					complete = await _itemRepository.RemoveId(userInput);
+
+					if (!complete)
+					{
+						_userInteraction.DisplayText(
+                            $"Item ID not found. Please try again.{Environment.NewLine}");
+					}
+                    else if (complete)
+                    {
+						_userInteraction.DisplayText(
+                            $"ID {userInput} removed.{Environment.NewLine}");
+					}
+				}
+            }
+            while (!complete);
+
+            // TODO: This is the same task from Run(), need to refactor this
+			Task? mainTask = Task.Run(async () =>
+			{
+				_items = await GetAllObjects();
+				_propertyNames = GetAllProperties();
+			});
 		}
 
 		private void HandleListItems()
