@@ -10,6 +10,7 @@ namespace ObjectScouter.Services
 	internal interface IApiReaderService
 	{
 		Task PostAsync(string requestUri, Item item);
+		Task PutAync(string requestUri, Item item);
 		Task<T> ReadAsync<T>(string requestUri);
 	}
 
@@ -77,5 +78,34 @@ namespace ObjectScouter.Services
                 await Console.Out.WriteLineAsync(errorBody);
             }
         }
+
+		public async Task PutAync(string requestUri, Item item)
+		{
+			string jsonContent = JsonSerializer.Serialize(item);
+
+			StringContent content = new(jsonContent, Encoding.UTF8, "application/json");
+
+			HttpResponseMessage responseMessage = await _httpClient.PutAsync(requestUri, content);
+
+			if (responseMessage.IsSuccessStatusCode)
+			{
+				string responseBody = await responseMessage.Content.ReadAsStringAsync();
+				await Console.Out.WriteLineAsync("Successfull response:");
+				await Console.Out.WriteLineAsync(responseBody);
+				Item? returnedAsPosted = JsonSerializer.Deserialize<Item>(responseBody);
+				string? postedId = returnedAsPosted?.Id;
+				if (postedId is not null)
+				{
+					await _itemRepository.AddId(postedId);
+				}
+			}
+			else
+			{
+				await Console.Out.WriteLineAsync($"Failed with status code: {responseMessage.StatusCode}");
+				string errorBody = await responseMessage.Content.ReadAsStringAsync();
+				await Console.Out.WriteLineAsync("Error details:");
+				await Console.Out.WriteLineAsync(errorBody);
+			}
+		}
 	}
 }

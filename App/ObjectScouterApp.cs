@@ -37,6 +37,7 @@ namespace ObjectScouter.App
             {
                 { "Search", HandleSearch },
                 { "List Items", HandleListItems },
+                { "Delete", HandleDeleteItem },
                 { "Exit", HandleExit },
             };
 		}
@@ -53,16 +54,17 @@ namespace ObjectScouter.App
 			_userInteraction.DisplayText(connectingMessage);
 
             //Demo Data
-            //Item noIdItem = new()
-            //{
-            //    Name = "No Id Item"
-            //};
+            /*
+            Item cherryTube = new()
+            {
+				Name = "Cherry Tubes"
+            };
 
-            //noIdItem.Data["Flavor"] = "Cherry";
-            //noIdItem.Data["Shape"] = "Tube";
+            cherryTube.Data["flavor"] = "cherry";
+            cherryTube.Data["shape"] = "tube";
 
-            //await _apiReaderService.PostAsync(RequestUri, noIdItem);
-
+            await _apiReaderService.PutAync(RequestUri, cherryTube);
+            */
 
             Task? mainTask = Task.Run(async () =>
             {
@@ -115,20 +117,28 @@ namespace ObjectScouter.App
 			{
 				_userInteraction.ListStrings(_propertyNames);
 
-				string targetName = _userInteraction.GetValidString($"Enter a property to search for:{Environment.NewLine}");
+				string targetName = _userInteraction.GetValidString(
+                    $"Enter a property to search for:{Environment.NewLine}");
 
                 IEnumerable<string> validPropertiesValues = GetValuesOfAllMatchingProperties(targetName);
 
                 _userInteraction.ListStrings(validPropertiesValues);
 
-                string targetValue = _userInteraction.GetValidString($"Enter a value to search all {targetName} properties for:{Environment.NewLine}");
+                string targetValue = _userInteraction.GetValidString(
+                    $"Enter a value to search all {targetName} properties for:{Environment.NewLine}");
 
                 FindPropertiesByValue(targetValue);
 			}
 			else
 			{
-				_userInteraction.DisplayText($"No properties found to search for.{Environment.NewLine}");
+				_userInteraction.DisplayText(
+                    $"No properties found to search for.{Environment.NewLine}");
 			}
+		}
+
+		private void HandleDeleteItem()
+		{
+
 		}
 
 		private void HandleListItems()
@@ -194,7 +204,8 @@ namespace ObjectScouter.App
 
             foreach (Item item in _items)
             {
-				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
+				IEnumerable<KeyValuePair<string, object>> properties =
+                    item.GetNonNullProperties();
 
                 foreach (var property in properties)
                 {
@@ -216,7 +227,8 @@ namespace ObjectScouter.App
 
 			foreach (Item item in _items)
             {
-				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
+				IEnumerable<KeyValuePair<string, object>> properties =
+                    item.GetNonNullProperties();
 
                 foreach (var property in properties)
                 {
@@ -250,7 +262,8 @@ namespace ObjectScouter.App
 				{
 					if (string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
 					{
-                        string foundValue = property.Value.ToString() ?? throw new InvalidOperationException($"{nameof(foundValue)} cannot be null.");
+                        string foundValue = property.Value.ToString() ??
+                            throw new InvalidOperationException($"{nameof(foundValue)} cannot be null.");
 						result.Add(foundValue);
 					}
 				}
