@@ -12,6 +12,8 @@ namespace ObjectScouter.App
 	{
         const string RequestUri = "/objects";
 
+        const string ExitOption = "Exit";
+
         private readonly IApiReaderService _apiReaderService;
 
 		private HashSet<string>? _propertyNames;
@@ -35,10 +37,11 @@ namespace ObjectScouter.App
 
             _menuOptions = new Dictionary<string, Action>(StringComparer.OrdinalIgnoreCase)
             {
+                { "Create", HandleCreateItem },
                 { "Search", HandleSearch },
-                { "List Items", HandleListItems },
+                { "List", HandleListItems },
                 { "Delete", HandleDeleteItem },
-                { "Exit", HandleExit },
+                { ExitOption, HandleExit }
             };
 		}
 
@@ -53,19 +56,6 @@ namespace ObjectScouter.App
 			string connectingMessage = $"Contacting database...{Environment.NewLine}";
 			_userInteraction.DisplayText(connectingMessage);
 
-			//Demo Data
-			/*
-            Item cherryTube = new()
-            {
-				Name = "Cherry Tubes"
-            };
-
-            cherryTube.Data["flavor"] = "cherry";
-            cherryTube.Data["shape"] = "tube";
-
-            await _apiReaderService.PutAync(RequestUri, cherryTube);
-            */
-
 			Task mainTask = MainTask();
 
 			string choice;
@@ -77,7 +67,7 @@ namespace ObjectScouter.App
 
 				HandleMenuChoice(choice);
 			}
-			while (!string.Equals(choice, "exit", StringComparison.OrdinalIgnoreCase));
+			while (!string.Equals(choice, ExitOption, StringComparison.OrdinalIgnoreCase));
 		}
 
 		private Task MainTask()
@@ -101,7 +91,7 @@ namespace ObjectScouter.App
 			{
 				await task;
 				task = null;
-				_ = task?.Status; // Line needed to satisfy compiler, no function.
+				_ = task?.Status; // Needed to satisfy compiler, no function.
 			}
 		}
 
@@ -117,7 +107,23 @@ namespace ObjectScouter.App
             }
 		}
 
-        private void HandleSearch()
+		private void HandleCreateItem()
+		{
+			//Demo Data
+			/*
+            Item cherryTube = new()
+            {
+				Name = "Cherry Tubes"
+            };
+
+            cherryTube.Data["flavor"] = "cherry";
+            cherryTube.Data["shape"] = "tube";
+
+            await _apiReaderService.PutAync(RequestUri, cherryTube);
+            */
+		}
+
+		private void HandleSearch()
         {
 			if (_propertyNames is not null)
 			{
@@ -260,7 +266,7 @@ namespace ObjectScouter.App
 
         // TODO: Change method to first ask for property name, then property value to search for.
         // Have a blank entry for value act as method does now, return all items with the property.
-        private void FindPropertyByName(string target)
+        private void FindItemsByPropertyNames(string target)
         {
 			if (_items is null)
 			{
@@ -311,7 +317,7 @@ namespace ObjectScouter.App
 				}
 			}
 
-            return result;
+            return [.. result];
 		}
 
 		private void FindPropertiesByValue(string target)
