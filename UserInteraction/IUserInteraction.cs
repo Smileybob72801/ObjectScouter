@@ -7,7 +7,7 @@ namespace ObjectScouter.UserInteraction
     {
         void DisplayText(string text);
 		string GetValidString(string prompt = "");
-		void ListProperties(IEnumerable<string> properties);
+		void ListStrings(IEnumerable<string> properties);
 		void ListItems(IEnumerable<Item> items);
 		void WaitForAnyInput();
 	}

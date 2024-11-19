@@ -14,7 +14,7 @@ namespace ObjectScouter.App
 
         private readonly IApiReaderService _apiReaderService;
 
-		private HashSet<string>? _properties;
+		private HashSet<string>? _propertyNames;
 
         private IEnumerable<Item>? _items;
 
@@ -72,7 +72,7 @@ namespace ObjectScouter.App
                 //Item testItem = await GetObjectById(_itemRepository.GetIds().First());
                 //_items = [testItem];
 
-				_properties = GetAllProperties();
+				_propertyNames = GetAllProperties();
 			});
 
             string choice;
@@ -111,13 +111,19 @@ namespace ObjectScouter.App
 
         private void HandleSearch()
         {
-			if (_properties is not null)
+			if (_propertyNames is not null)
 			{
-				_userInteraction.ListProperties(_properties);
+				_userInteraction.ListStrings(_propertyNames);
 
-				string targetProperty = _userInteraction.GetValidString($"Enter a property to search for:{Environment.NewLine}");
+				string targetName = _userInteraction.GetValidString($"Enter a property to search for:{Environment.NewLine}");
 
-				FindPropertyByName(targetProperty);
+                IEnumerable<string> validPropertiesValues = GetValuesOfAllMatchingProperties(targetName);
+
+                _userInteraction.ListStrings(validPropertiesValues);
+
+                string targetValue = _userInteraction.GetValidString($"Enter a value to search all {targetName} properties for:{Environment.NewLine}");
+
+                FindPropertiesByValue(targetValue);
 			}
 			else
 			{
@@ -125,7 +131,7 @@ namespace ObjectScouter.App
 			}
 		}
 
-        private void HandleListItems()
+		private void HandleListItems()
         {
 			if (_items is not null)
 			{
@@ -225,5 +231,54 @@ namespace ObjectScouter.App
                 }
             }
         }
+
+		private IEnumerable<string> GetValuesOfAllMatchingProperties(string targetName)
+		{
+            // Go through all properties, if property name matches target then print value
+            if (_items is null)
+            {
+                throw new InvalidOperationException($"{nameof(_items)} is null.");
+            }
+
+            List<string> result = [];
+
+			foreach (Item item in _items)
+			{
+				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
+
+				foreach (KeyValuePair<string, object> property in properties)
+				{
+					if (string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
+					{
+                        string foundValue = property.Value.ToString() ?? throw new InvalidOperationException($"{nameof(foundValue)} cannot be null.");
+						result.Add(foundValue);
+					}
+				}
+			}
+
+            return result;
+		}
+
+		private void FindPropertiesByValue(string target)
+        {
+			if (_items is null)
+			{
+				throw new InvalidOperationException("No valid items to search.");
+			}
+
+            foreach (Item item in _items)
+            {
+				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
+                
+                foreach (KeyValuePair<string, object> property in properties)
+                {
+                    if (string.Equals(target, property.Value.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+						_userInteraction.DisplayText(
+							$"{item.Name} has matching {property.Key}: {property.Value}{Environment.NewLine}");
+					}
+                }
+            }
+		}
     }
 }
