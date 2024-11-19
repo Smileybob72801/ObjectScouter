@@ -10,5 +10,6 @@ namespace ObjectScouter.UserInteraction
 		void ListStrings(IEnumerable<string> properties);
 		void ListItems(IEnumerable<Item> items);
 		void WaitForAnyInput();
+		bool GetYesOrNo(string prompt, string invalidResponse);
 	}
 }

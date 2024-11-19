@@ -109,18 +109,36 @@ namespace ObjectScouter.App
 
 		private void HandleCreateItem()
 		{
-			//Demo Data
-			/*
-            Item cherryTube = new()
+			Item itemToAdd = new()
+			{
+				Name = _userInteraction.GetValidString(
+				$"Enter the name for the new item:{Environment.NewLine}")
+			};
+
+			bool finishedAddingProperties;
+            do
             {
-				Name = "Cherry Tubes"
-            };
+                string nameOfPropertyToAdd = _userInteraction.GetValidString(
+                    $"Enter new property name:{Environment.NewLine}");
 
-            cherryTube.Data["flavor"] = "cherry";
-            cherryTube.Data["shape"] = "tube";
+                string valueOfPropertyToAdd = _userInteraction.GetValidString(
+                    $"Enter value for {nameOfPropertyToAdd}:{Environment.NewLine}");
 
-            await _apiReaderService.PutAync(RequestUri, cherryTube);
-            */
+                itemToAdd.Data[nameOfPropertyToAdd] = valueOfPropertyToAdd;
+
+                finishedAddingProperties = _userInteraction.GetYesOrNo(
+                    $"Finished adding properties? Y or N?{Environment.NewLine}",
+                    "Invalid response.");
+            }
+            while (!finishedAddingProperties);
+
+			// TODO: This is the same task from Run(), need to refactor this
+			Task? mainTask = Task.Run(async () =>
+			{
+				await _apiReaderService.PostAsync(RequestUri, itemToAdd);
+				_items = await GetAllObjects();
+				_propertyNames = GetAllProperties();
+			});
 		}
 
 		private void HandleSearch()

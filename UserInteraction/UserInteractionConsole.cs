@@ -54,5 +54,30 @@ namespace ObjectScouter.UserInteraction
 		{
 			Console.ReadKey();
 		}
+		
+		public bool GetYesOrNo(string prompt, string invalidResponse)
+		{
+
+			while (true)
+			{
+				DisplayText(prompt);
+
+                string input = Console.ReadKey().KeyChar.ToString();
+
+				if (string.Equals(input, "y", StringComparison.OrdinalIgnoreCase))
+				{
+					return true;
+				}
+				else if (string.Equals(input, "n", StringComparison.OrdinalIgnoreCase))
+				{
+					return false;
+				}
+				else
+				{
+					DisplayText(invalidResponse);
+				}
+			}
+			
+		}
 	}
 }
