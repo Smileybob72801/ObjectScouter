@@ -30,7 +30,7 @@ namespace ObjectScouter.UserInteraction
 			return result;
         }
 
-		public void PrintObjects(IEnumerable<Item> items)
+		public void ListItems(IEnumerable<Item> items)
 		{
 			foreach (Item item in items)
 			{

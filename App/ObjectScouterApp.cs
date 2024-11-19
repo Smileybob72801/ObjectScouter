@@ -129,7 +129,7 @@ namespace ObjectScouter.App
         {
 			if (_items is not null)
 			{
-				_userInteraction.PrintObjects(_items);
+				_userInteraction.ListItems(_items);
 			}
 			else
 			{
