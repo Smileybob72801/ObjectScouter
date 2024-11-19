@@ -25,7 +25,9 @@ namespace ObjectScouter.UserInteraction
             }
             while (string.IsNullOrWhiteSpace(result));
 
-            return result;
+			DisplayText("");
+
+			return result;
         }
 
 		public void PrintObjects(IEnumerable<Item> items)
@@ -38,7 +40,7 @@ namespace ObjectScouter.UserInteraction
 
 		public void ListProperties(IEnumerable<string> properties)
 		{
-			DisplayText($"{Environment.NewLine}Searchable properties: ");
+			DisplayText($"Searchable properties: ");
 
 			foreach (string property in properties)
 			{

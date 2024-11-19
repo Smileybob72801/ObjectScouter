@@ -10,7 +10,6 @@ namespace ObjectScouter.App
 {
 	internal class AsyncApiApp
 	{
-		const string ApiBaseAddress = "https://api.restful-api.dev/";
         const string RequestUri = "/objects";
 
         private readonly IApiReaderService _apiReaderService;
@@ -50,7 +49,7 @@ namespace ObjectScouter.App
 			// TODO: Move all awaited Tasks to another method so we can get to UI
 			await _itemRepository.LoadFromFileAsync();
 
-            string connectingMessage = "Contacting database...";
+            string connectingMessage = $"Contacting database...{Environment.NewLine}";
 			_userInteraction.DisplayText(connectingMessage);
 
             //Demo Data
@@ -106,7 +105,7 @@ namespace ObjectScouter.App
             }
             else
             {
-                _userInteraction.DisplayText("Invalid choice.");
+                _userInteraction.DisplayText($"Invalid choice.{Environment.NewLine}");
             }
 		}
 
@@ -122,7 +121,7 @@ namespace ObjectScouter.App
 			}
 			else
 			{
-				_userInteraction.DisplayText("No properties found to search for.");
+				_userInteraction.DisplayText($"No properties found to search for.{Environment.NewLine}");
 			}
 		}
 
@@ -134,19 +133,19 @@ namespace ObjectScouter.App
 			}
 			else
 			{
-				_userInteraction.DisplayText("No items to display.");
+				_userInteraction.DisplayText($"No items to display.{Environment.NewLine}");
 			}
 		}
 
         private void HandleExit()
         {
-			_userInteraction.DisplayText($"{Environment.NewLine}Press any key to close application...");
+			_userInteraction.DisplayText($"Press any key to close application...");
             _userInteraction.WaitForAnyInput();
 		}
 
         private string GetMenuChoice()
         {
-            _userInteraction.DisplayText($"{Environment.NewLine}Choose an option: ");
+            _userInteraction.DisplayText($"Choose an option: ");
 
             foreach (var option in _menuOptions)
             {
@@ -200,10 +199,10 @@ namespace ObjectScouter.App
             return result;
         }
 
+        // TODO: Change method to first ask for property name, then property value to search for.
+        // Have a blank entry for value act as method does now, return all items with the property.
         private void FindPropertyByName(string target)
         {
-            _userInteraction.DisplayText("");
-
 			if (_items is null)
 			{
 				throw new InvalidOperationException("No valid items to search.");
@@ -221,7 +220,7 @@ namespace ObjectScouter.App
                         object propertyValue = property.Value;
 
                         _userInteraction.DisplayText(
-                            $"Found an item, {item.Name}, with {propertyName}: {propertyValue}");
+                            $"Found an item, {item.Name}, with {propertyName}: {propertyValue}{Environment.NewLine}");
                     }
                 }
             }
