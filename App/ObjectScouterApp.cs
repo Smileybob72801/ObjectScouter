@@ -50,9 +50,6 @@ namespace ObjectScouter.App
 		// Artificial delays have been added to various modules to aid demonstration.
 		public async Task Run()
 		{
-			// TODO: Move all awaited Tasks to another method so we can get to UI
-			await _itemRepository.LoadFromFileAsync();
-
 			string connectingMessage = $"Contacting database...{Environment.NewLine}";
 			_userInteraction.DisplayText(connectingMessage);
 
@@ -74,12 +71,8 @@ namespace ObjectScouter.App
 		{
 			Task? mainTask = Task.Run(async () =>
 			{
+				await _itemRepository.LoadFromFileAsync();
 				_items = await GetAllObjects();
-
-				// TODO: Update GetAllObjects to get all custom objects by id
-				//Item testItem = await GetObjectById(_itemRepository.GetIds().First());
-				//_items = [testItem];
-
 				_propertyNames = GetAllProperties();
 			});
 			return mainTask;
@@ -244,7 +237,7 @@ namespace ObjectScouter.App
         private async Task<IEnumerable<Item>> GetAllObjects()
         {
             // Just to simulate background work
-            //await Task.Delay(4000);
+            await Task.Delay(4000);
 
             var result = await _apiReaderService.ReadAsync<IEnumerable<Item>>(RequestUri);
 
