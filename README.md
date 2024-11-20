@@ -55,3 +55,4 @@ dotnet build && dotnet run
 - 🔍 **Advanced Search:** Add support for complex search queries (e.g., AND/OR conditions).
 - 📊 **Visualization:** Provide a graphical representation of dynamic object relationships.
 - 🌍 **Cross-Platform Support:** Enhance compatibility with non-Windows operating systems.
+- 🔄 Add Update Operation: Implement the missing "Update" CRUD operation using a PATCH request.
