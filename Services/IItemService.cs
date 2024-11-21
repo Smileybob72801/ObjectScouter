@@ -6,6 +6,8 @@ namespace ObjectScouter.Services
 	{
 		IEnumerable<Item>? Items { get; set; }
 		HashSet<string>? PropertyNames { get; set; }
+		string RequestUri { get; }
+
 		void FindPropertiesByValue(string target);
 		Task<IEnumerable<Item>> GetAllObjects();
 		HashSet<string> GetAllProperties();

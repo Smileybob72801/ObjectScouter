@@ -16,12 +16,13 @@ namespace ObjectScouter.Services
 		public IEnumerable<Item>? Items { get; set; }
 
 		public HashSet<string>? PropertyNames { get; set; }
+		public string RequestUri { get => requestUri; }
 
 		private readonly IUserInteraction _userInteraction = userInteraction;
 
 		private readonly IApiService _apiService = apiService;
 
-		const string RequestUri = "/objects";
+		private readonly string requestUri = "/objects";
 
 		const string ItemsNullMessage = "Items collection is null";
 
@@ -36,6 +37,7 @@ namespace ObjectScouter.Services
 			return Items.SelectMany(item => item.GetNonNullProperties())
 				.Where(property => string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
 				.Select(property => property.Value?.ToString())
+				.Distinct(new StringComparerIgnoreCase())
 				.ToArray();
 		}
 
@@ -87,7 +89,7 @@ namespace ObjectScouter.Services
 		public async Task<IEnumerable<Item>> GetAllObjects()
 		{
 			// Just to simulate background work
-			await Task.Delay(4000);
+			//await Task.Delay(4000);
 
 			var result = await _apiService.ReadAsync<IEnumerable<Item>>(RequestUri);
 

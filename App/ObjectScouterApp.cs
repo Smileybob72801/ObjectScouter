@@ -18,28 +18,32 @@ namespace ObjectScouter.App
 
         private readonly IUserInteraction _userInteraction;
 
-		private readonly IItemRepository _itemRepository;
-
         private readonly Dictionary<string, Func<Task>> _menuOptions;
 
-        private readonly IItemService _itemService;
+		private readonly IMenuService _menuService;
+
+		private readonly IItemRepository _itemRepository;
+
+		private readonly IItemService _itemService;
 
 		public AsyncApiApp(
         IUserInteraction userInteraction,
-        IItemRepository itemRepository,
-        IItemService itemService)
+		IItemRepository itemRepository,
+		IItemService itemService,
+		IMenuService menuService)
 		{
 			_userInteraction = userInteraction;
+			_menuService = menuService;
+			_itemService = itemService;
 			_itemRepository = itemRepository;
-            _itemService = itemService;
 
             _menuOptions = new Dictionary<string, Func<Task>>(StringComparer.OrdinalIgnoreCase)
             {
-                { CreateOption, HandleCreateItemAsync },
-                { SearchOption, HandleSearchAsync },
-                { ListOption, HandleListItemsAsync },
-                { DeleteOption, HandleDeleteItemAsync },
-                { ExitOption, HandleExitAsync }
+                { CreateOption, _menuService.HandleCreateItemAsync },
+                { SearchOption, _menuService.HandleSearchAsync },
+                { ListOption, _menuService.HandleListItemsAsync },
+                { DeleteOption, _menuService.HandleDeleteItemAsync },
+                { ExitOption, _menuService.HandleExitAsync }
             };
 		}
 
@@ -51,21 +55,21 @@ namespace ObjectScouter.App
 			string connectingMessage = $"Contacting database...{Environment.NewLine}";
 			_userInteraction.DisplayText(connectingMessage);
 
-			Task mainTask = MainTask();
+			Task getDataTask = GetDataAsync();
 
 			string choice;
 			do
 			{
 				choice = GetMenuChoice();
 
-				await AwaitTaskIfPending(mainTask);
+				await AwaitTaskIfPendingAsync(getDataTask);
 
 				await HandleMenuChoiceAsync(choice);
 			}
 			while (!string.Equals(choice, ExitOption, StringComparison.OrdinalIgnoreCase));
 		}
 
-		private Task MainTask()
+        private Task GetDataAsync()
 		{
 			Task? mainTask = Task.Run(async () =>
 			{
@@ -76,7 +80,7 @@ namespace ObjectScouter.App
 			return mainTask;
 		}
 
-		private static async Task AwaitTaskIfPending(Task? task)
+		private async Task AwaitTaskIfPendingAsync(Task? task)
 		{
 			if (task is not null)
 			{
@@ -98,115 +102,7 @@ namespace ObjectScouter.App
             }
 		}
 
-		private async Task HandleCreateItemAsync()
-		{
-			Item itemToAdd = new()
-			{
-				Name = _userInteraction.GetValidString(
-				$"Enter the name for the new item:{Environment.NewLine}")
-			};
-
-			bool finishedAddingProperties;
-            do
-            {
-                string nameOfPropertyToAdd = _userInteraction.GetValidString(
-                    $"Enter new property name:{Environment.NewLine}");
-
-                string valueOfPropertyToAdd = _userInteraction.GetValidString(
-                    $"Enter value for {nameOfPropertyToAdd}:{Environment.NewLine}");
-
-                itemToAdd.Data[nameOfPropertyToAdd] = valueOfPropertyToAdd;
-
-                finishedAddingProperties = _userInteraction.GetYesOrNo(
-                    $"Finished adding properties? Y or N?{Environment.NewLine}",
-                    "Invalid response.");
-            }
-            while (!finishedAddingProperties);
-
-			Task mainTask = MainTask();
-			await AwaitTaskIfPending(mainTask);
-		}
-
-		private async Task HandleSearchAsync()
-        {
-			if (_itemService.PropertyNames is not null)
-			{
-				_userInteraction.ListStrings([.. _itemService.PropertyNames]);
-
-				string targetName = _userInteraction.GetValidString(
-                    $"Enter a property to search for:{Environment.NewLine}");
-
-				string?[] validPropertiesValues = _itemService.GetValuesOfAllMatchingProperties(targetName);
-
-                _userInteraction.ListStrings(validPropertiesValues);
-
-                string targetValue = _userInteraction.GetValidString(
-                    $"Enter a value to search all {targetName} properties for:{Environment.NewLine}");
-
-                _itemService.FindPropertiesByValue(targetValue);
-			}
-			else
-			{
-				_userInteraction.DisplayText(
-                    $"No properties found to search for.{Environment.NewLine}");
-			}
-		}
-		private async Task HandleDeleteItemAsync()
-		{
-            string userInput;
-            string cancelCommand = "cancel";
-
-            bool complete;
-            do
-            {
-                userInput = _userInteraction.GetValidString(
-                $"Enter ID of object to delete, or type 'Cancel':{Environment.NewLine}");
-
-                if (string.Equals(userInput, cancelCommand, StringComparison.OrdinalIgnoreCase))
-                {
-                    complete = true;
-                }
-                else
-                {
-					complete = await _itemRepository.RemoveId(userInput);
-
-					if (!complete)
-					{
-						_userInteraction.DisplayText(
-                            $"Item ID not found. Please try again.{Environment.NewLine}");
-					}
-                    else if (complete)
-                    {
-						_userInteraction.DisplayText(
-                            $"ID {userInput} removed.{Environment.NewLine}");
-					}
-				}
-            }
-            while (!complete);
-
-			Task mainTask = MainTask();
-			await AwaitTaskIfPending(mainTask);
-		}
-
-		private async Task HandleListItemsAsync()
-        {
-			if (_itemService.Items is not null)
-			{
-				_userInteraction.ListItems(_itemService.Items);
-			}
-			else
-			{
-				_userInteraction.DisplayText($"No items to display.{Environment.NewLine}");
-			}
-		}
-
-        private async Task HandleExitAsync()
-        {
-			_userInteraction.DisplayText($"Press any key to close application...");
-            _userInteraction.WaitForAnyInput();
-		}
-
-        private string GetMenuChoice()
+		private string GetMenuChoice()
         {
             _userInteraction.DisplayText($"Choose an option: ");
 
