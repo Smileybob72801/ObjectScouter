@@ -10,9 +10,7 @@ namespace ObjectScouter.App
 {
 	internal class AsyncApiApp
 	{
-        const string RequestUri = "/objects";
-
-        const string CreateOption = "Create";
+		const string CreateOption = "Create";
         const string SearchOption = "Search";
         const string ListOption = "List";
         const string DeleteOption = "Delete";
