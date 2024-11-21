@@ -8,7 +8,7 @@ using ObjectScouter.Repositories;
 namespace ObjectScouter.Services
 {
 
-	internal partial class ApiReaderService(HttpClient httpClient, IItemRepository itemRepository) : IApiReaderService
+	internal partial class ApiService(HttpClient httpClient, IItemRepository itemRepository) : IApiService
 	{
 		private readonly HttpClient _httpClient = httpClient;
 		private readonly IItemRepository _itemRepository = itemRepository;

@@ -18,7 +18,7 @@ namespace ObjectScouter.App
         const string DeleteOption = "Delete";
         const string ExitOption = "Exit";
 
-        private readonly IApiReaderService _apiReaderService;
+        private readonly IApiService _apiReaderService;
 
 		private HashSet<string>? _propertyNames;
 
@@ -30,14 +30,18 @@ namespace ObjectScouter.App
 
         private readonly Dictionary<string, Func<Task>> _menuOptions;
 
+        private readonly IItemService _itemService;
+
 		public AsyncApiApp(
-        IApiReaderService apiReaderService,
+        IApiService apiReaderService,
         IUserInteraction userInteraction,
-        IItemRepository itemRepository)
+        IItemRepository itemRepository,
+        IItemService itemService)
 		{
 			_apiReaderService = apiReaderService;
 			_userInteraction = userInteraction;
 			_itemRepository = itemRepository;
+            _itemService = itemService;
 
             _menuOptions = new Dictionary<string, Func<Task>>(StringComparer.OrdinalIgnoreCase)
             {
