@@ -22,8 +22,6 @@ namespace ObjectScouter.App
 
 		private HashSet<string>? _propertyNames;
 
-        private IEnumerable<Item>? _items;
-
         private readonly IUserInteraction _userInteraction;
 
 		private readonly IItemRepository _itemRepository;
@@ -80,7 +78,7 @@ namespace ObjectScouter.App
 			Task? mainTask = Task.Run(async () =>
 			{
 				await _itemRepository.LoadFromFileAsync();
-				_items = await GetAllObjects();
+				_itemService.Items = await GetAllObjects();
 				_propertyNames = GetAllProperties();
 			});
 			return mainTask;
@@ -133,13 +131,8 @@ namespace ObjectScouter.App
             }
             while (!finishedAddingProperties);
 
-			// TODO: This is the same task from Run(), need to refactor this
-			Task? mainTask = Task.Run(async () =>
-			{
-				await _apiReaderService.PostAsync(RequestUri, itemToAdd);
-				_items = await GetAllObjects();
-				_propertyNames = GetAllProperties();
-			});
+			Task mainTask = MainTask();
+			await AwaitTaskIfPending(mainTask);
 		}
 
 		private async Task HandleSearchAsync()
@@ -199,19 +192,15 @@ namespace ObjectScouter.App
             }
             while (!complete);
 
-            // TODO: This is the same task from Run(), need to refactor this
-			Task? mainTask = Task.Run(async () =>
-			{
-				_items = await GetAllObjects();
-				_propertyNames = GetAllProperties();
-			});
+			Task mainTask = MainTask();
+			await AwaitTaskIfPending(mainTask);
 		}
 
 		private async Task HandleListItemsAsync()
         {
-			if (_items is not null)
+			if (_itemService.Items is not null)
 			{
-				_userInteraction.ListItems(_items);
+				_userInteraction.ListItems(_itemService.Items);
 			}
 			else
 			{
@@ -263,12 +252,12 @@ namespace ObjectScouter.App
         {
             HashSet<string> result = new (new StringComparerIgnoreCase());
 
-            if (_items is null)
+            if (_itemService.Items is null)
             {
                 throw new InvalidOperationException("Items is null.");
             }
 
-            foreach (Item item in _items)
+            foreach (Item item in _itemService.Items)
             {
 				IEnumerable<KeyValuePair<string, object>> properties =
                     item.GetNonNullProperties();
@@ -284,12 +273,12 @@ namespace ObjectScouter.App
 
         private void FindItemsByPropertyNames(string target)
         {
-			if (_items is null)
+			if (_itemService.Items is null)
 			{
 				throw new InvalidOperationException("No valid items to search.");
 			}
 
-			foreach (Item item in _items)
+			foreach (Item item in _itemService.Items)
             {
 				IEnumerable<KeyValuePair<string, object>> properties =
                     item.GetNonNullProperties();
@@ -311,12 +300,12 @@ namespace ObjectScouter.App
 		private string?[] GetValuesOfAllMatchingProperties(string targetName)
 		{
             // Go through all properties, if property name matches target then print value
-            if (_items is null)
+            if (_itemService.Items is null)
             {
-                throw new InvalidOperationException($"{nameof(_items)} is null.");
+                throw new InvalidOperationException($"{nameof(_itemService.Items)} is null.");
             }
 
-			string?[] result = _items.SelectMany(item => item.GetNonNullProperties())
+			string?[] result = _itemService.Items.SelectMany(item => item.GetNonNullProperties())
                 .Where(property => string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
                 .Select(property => property.Value.ToString())
                 .ToArray();
@@ -326,12 +315,12 @@ namespace ObjectScouter.App
 
 		private void FindPropertiesByValue(string target)
         {
-			if (_items is null)
+			if (_itemService.Items is null)
 			{
 				throw new InvalidOperationException("No valid items to search.");
 			}
 
-            foreach (Item item in _items)
+            foreach (Item item in _itemService.Items)
             {
 				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
                 

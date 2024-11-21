@@ -7,13 +7,20 @@ using System.Threading.Tasks;
 
 namespace ObjectScouter.Services
 {
-	internal class ItemService(List<Item> items) : IItemService
+	internal class ItemService : IItemService
 	{
-		private readonly List<Item> _items = items;
+		public IEnumerable<Item>? Items { get; set; }
 
+		const string ItemsNullMessage = "Items collection is null";
 		public string?[] GetValuesOfAllMatchingProperties(string targetName)
 		{
-			return _items.SelectMany(item => item.GetNonNullProperties())
+
+			if (Items is null)
+			{
+				throw new InvalidOperationException(ItemsNullMessage);
+			}
+
+			return Items.SelectMany(item => item.GetNonNullProperties())
 				.Where(property => string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
 				.Select(property => property.Value?.ToString())
 				.ToArray();
