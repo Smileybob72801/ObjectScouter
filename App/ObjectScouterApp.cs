@@ -304,7 +304,7 @@ namespace ObjectScouter.App
             }
         }
 
-		private IEnumerable<string> GetValuesOfAllMatchingProperties(string targetName)
+		private string?[] GetValuesOfAllMatchingProperties(string targetName)
 		{
             // Go through all properties, if property name matches target then print value
             if (_items is null)
@@ -312,24 +312,12 @@ namespace ObjectScouter.App
                 throw new InvalidOperationException($"{nameof(_items)} is null.");
             }
 
-            List<string> result = [];
+			string?[] result = _items.SelectMany(item => item.GetNonNullProperties())
+                .Where(property => string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
+                .Select(property => property.Value.ToString())
+                .ToArray();
 
-			foreach (Item item in _items)
-			{
-				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
-
-				foreach (KeyValuePair<string, object> property in properties)
-				{
-					if (string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
-					{
-                        string foundValue = property.Value.ToString() ??
-                            throw new InvalidOperationException($"{nameof(foundValue)} cannot be null.");
-						result.Add(foundValue);
-					}
-				}
-			}
-
-            return [.. result];
+            return result;
 		}
 
 		private void FindPropertiesByValue(string target)
