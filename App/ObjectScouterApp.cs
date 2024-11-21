@@ -28,7 +28,7 @@ namespace ObjectScouter.App
 
 		private readonly IItemRepository _itemRepository;
 
-        private readonly Dictionary<string, Action> _menuOptions;
+        private readonly Dictionary<string, Func<Task>> _menuOptions;
 
 		public AsyncApiApp(
         IApiReaderService apiReaderService,
@@ -39,13 +39,13 @@ namespace ObjectScouter.App
 			_userInteraction = userInteraction;
 			_itemRepository = itemRepository;
 
-            _menuOptions = new Dictionary<string, Action>(StringComparer.OrdinalIgnoreCase)
+            _menuOptions = new Dictionary<string, Func<Task>>(StringComparer.OrdinalIgnoreCase)
             {
-                { CreateOption, HandleCreateItem },
-                { SearchOption, HandleSearch },
-                { ListOption, HandleListItems },
-                { DeleteOption, HandleDeleteItem },
-                { ExitOption, HandleExit }
+                { CreateOption, HandleCreateItemAsync },
+                { SearchOption, HandleSearchAsync },
+                { ListOption, HandleListItemsAsync },
+                { DeleteOption, HandleDeleteItemAsync },
+                { ExitOption, HandleExitAsync }
             };
 		}
 
@@ -66,7 +66,7 @@ namespace ObjectScouter.App
 
 				await AwaitTaskIfPending(mainTask);
 
-				HandleMenuChoice(choice);
+				await HandleMenuChoiceAsync(choice);
 			}
 			while (!string.Equals(choice, ExitOption, StringComparison.OrdinalIgnoreCase));
 		}
@@ -92,19 +92,19 @@ namespace ObjectScouter.App
 			}
 		}
 
-		private void HandleMenuChoice(string choice)
+		private async Task HandleMenuChoiceAsync(string choice)
         {
-            if (_menuOptions.TryGetValue(choice, out Action? action))
+            if (_menuOptions.TryGetValue(choice, out Func<Task>? action))
             {
-                action();
+                await action();
             }
             else
             {
-                _userInteraction.DisplayText($"Invalid choice.{Environment.NewLine}");
+				_userInteraction.DisplayText($"Invalid choice.{Environment.NewLine}");
             }
 		}
 
-		private void HandleCreateItem()
+		private async Task HandleCreateItemAsync()
 		{
 			Item itemToAdd = new()
 			{
@@ -138,7 +138,7 @@ namespace ObjectScouter.App
 			});
 		}
 
-		private void HandleSearch()
+		private async Task HandleSearchAsync()
         {
 			if (_propertyNames is not null)
 			{
@@ -162,12 +162,6 @@ namespace ObjectScouter.App
                     $"No properties found to search for.{Environment.NewLine}");
 			}
 		}
-
-        private void HandleDeleteItem()
-        {
-            HandleDeleteItemAsync().GetAwaiter().GetResult();
-        }
-
 		private async Task HandleDeleteItemAsync()
 		{
             string userInput;
@@ -209,7 +203,7 @@ namespace ObjectScouter.App
 			});
 		}
 
-		private void HandleListItems()
+		private async Task HandleListItemsAsync()
         {
 			if (_items is not null)
 			{
@@ -221,7 +215,7 @@ namespace ObjectScouter.App
 			}
 		}
 
-        private void HandleExit()
+        private async Task HandleExitAsync()
         {
 			_userInteraction.DisplayText($"Press any key to close application...");
             _userInteraction.WaitForAnyInput();
