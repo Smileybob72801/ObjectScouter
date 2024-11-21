@@ -38,11 +38,11 @@ namespace ObjectScouter.UserInteraction
 			}
 		}
 
-		public void ListStrings(IEnumerable<string> strings)
+		public void ListStrings(string?[] strings)
 		{
 			DisplayText($"Searchable properties: ");
 
-			foreach (string s in strings)
+			foreach (string? s in strings)
 			{
 				DisplayText(s);
 			}

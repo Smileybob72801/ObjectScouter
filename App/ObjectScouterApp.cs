@@ -139,12 +139,12 @@ namespace ObjectScouter.App
         {
 			if (_propertyNames is not null)
 			{
-				_userInteraction.ListStrings(_propertyNames);
+				_userInteraction.ListStrings([.. _propertyNames]);
 
 				string targetName = _userInteraction.GetValidString(
                     $"Enter a property to search for:{Environment.NewLine}");
 
-                IEnumerable<string> validPropertiesValues = GetValuesOfAllMatchingProperties(targetName);
+				string?[] validPropertiesValues = _itemService.GetValuesOfAllMatchingProperties(targetName);
 
                 _userInteraction.ListStrings(validPropertiesValues);
 
@@ -296,22 +296,6 @@ namespace ObjectScouter.App
                 }
             }
         }
-
-		private string?[] GetValuesOfAllMatchingProperties(string targetName)
-		{
-            // Go through all properties, if property name matches target then print value
-            if (_itemService.Items is null)
-            {
-                throw new InvalidOperationException($"{nameof(_itemService.Items)} is null.");
-            }
-
-			string?[] result = _itemService.Items.SelectMany(item => item.GetNonNullProperties())
-                .Where(property => string.Equals(targetName, property.Key, StringComparison.OrdinalIgnoreCase))
-                .Select(property => property.Value.ToString())
-                .ToArray();
-
-            return result;
-		}
 
 		private void FindPropertiesByValue(string target)
         {
