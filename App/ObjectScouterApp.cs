@@ -16,8 +16,6 @@ namespace ObjectScouter.App
         const string DeleteOption = "Delete";
         const string ExitOption = "Exit";
 
-        private readonly IApiService _apiService;
-
         private readonly IUserInteraction _userInteraction;
 
 		private readonly IItemRepository _itemRepository;
@@ -27,12 +25,10 @@ namespace ObjectScouter.App
         private readonly IItemService _itemService;
 
 		public AsyncApiApp(
-        IApiService apiService,
         IUserInteraction userInteraction,
         IItemRepository itemRepository,
         IItemService itemService)
 		{
-			_apiService = apiService;
 			_userInteraction = userInteraction;
 			_itemRepository = itemRepository;
             _itemService = itemService;
