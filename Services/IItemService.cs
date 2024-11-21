@@ -6,6 +6,7 @@ namespace ObjectScouter.Services
 	{
 		IEnumerable<Item>? Items { get; set; }
 
+		void FindPropertiesByValue(string target);
 		string?[] GetValuesOfAllMatchingProperties(string targetName);
 	}
 }

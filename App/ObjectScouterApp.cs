@@ -151,7 +151,7 @@ namespace ObjectScouter.App
                 string targetValue = _userInteraction.GetValidString(
                     $"Enter a value to search all {targetName} properties for:{Environment.NewLine}");
 
-                FindPropertiesByValue(targetValue);
+                _itemService.FindPropertiesByValue(targetValue);
 			}
 			else
 			{
@@ -296,27 +296,5 @@ namespace ObjectScouter.App
                 }
             }
         }
-
-		private void FindPropertiesByValue(string target)
-        {
-			if (_itemService.Items is null)
-			{
-				throw new InvalidOperationException("No valid items to search.");
-			}
-
-            foreach (Item item in _itemService.Items)
-            {
-				IEnumerable<KeyValuePair<string, object>> properties = item.GetNonNullProperties();
-                
-                foreach (KeyValuePair<string, object> property in properties)
-                {
-                    if (string.Equals(target, property.Value.ToString(), StringComparison.OrdinalIgnoreCase))
-                    {
-						_userInteraction.DisplayText(
-							$"{item.Name} has matching {property.Key}: {property.Value}{Environment.NewLine}");
-					}
-                }
-            }
-		}
-    }
+	}
 }
