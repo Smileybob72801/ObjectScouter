@@ -18,9 +18,7 @@ namespace ObjectScouter.App
         const string DeleteOption = "Delete";
         const string ExitOption = "Exit";
 
-        private readonly IApiService _apiReaderService;
-
-		//private HashSet<string>? _propertyNames;
+        private readonly IApiService _apiService;
 
         private readonly IUserInteraction _userInteraction;
 
@@ -31,12 +29,12 @@ namespace ObjectScouter.App
         private readonly IItemService _itemService;
 
 		public AsyncApiApp(
-        IApiService apiReaderService,
+        IApiService apiService,
         IUserInteraction userInteraction,
         IItemRepository itemRepository,
         IItemService itemService)
 		{
-			_apiReaderService = apiReaderService;
+			_apiService = apiService;
 			_userInteraction = userInteraction;
 			_itemRepository = itemRepository;
             _itemService = itemService;
@@ -78,8 +76,8 @@ namespace ObjectScouter.App
 			Task? mainTask = Task.Run(async () =>
 			{
 				await _itemRepository.LoadFromFileAsync();
-				_itemService.Items = await GetAllObjects();
-				_itemService.PropertyNames = GetAllProperties();
+				_itemService.Items = await _itemService.GetAllObjects();
+				_itemService.PropertyNames = _itemService.GetAllProperties();
 			});
 			return mainTask;
 		}
@@ -226,47 +224,6 @@ namespace ObjectScouter.App
             _userInteraction.DisplayText("");
 
             string result = _userInteraction.GetValidString();
-
-            return result;
-        }
-
-        private async Task<IEnumerable<Item>> GetAllObjects()
-        {
-            // Just to simulate background work
-            await Task.Delay(4000);
-
-            var result = await _apiReaderService.ReadAsync<IEnumerable<Item>>(RequestUri);
-
-            return result;
-        }
-
-        private async Task<Item> GetObjectById(string id)
-        {
-            string objectUri = RequestUri + $"/{id}";
-			var result = await _apiReaderService.ReadAsync<Item>(objectUri);
-
-			return result;
-		}
-
-        private HashSet<string> GetAllProperties()
-        {
-            HashSet<string> result = new (new StringComparerIgnoreCase());
-
-            if (_itemService.Items is null)
-            {
-                throw new InvalidOperationException("Items is null.");
-            }
-
-            foreach (Item item in _itemService.Items)
-            {
-				IEnumerable<KeyValuePair<string, object>> properties =
-                    item.GetNonNullProperties();
-
-                foreach (var property in properties)
-                {
-                    result.Add(property.Key);
-                }
-            }
 
             return result;
         }

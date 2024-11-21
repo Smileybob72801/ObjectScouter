@@ -10,9 +10,7 @@ using System.Threading.Tasks;
 
 namespace ObjectScouter.Services
 {
-	internal class ItemService(
-		IUserInteraction userInteraction,
-		IItemRepository itemRepository,
+	internal class ItemService(IUserInteraction userInteraction,
 		IApiService apiService) : IItemService
 	{
 		public IEnumerable<Item>? Items { get; set; }
@@ -21,13 +19,11 @@ namespace ObjectScouter.Services
 
 		private readonly IUserInteraction _userInteraction = userInteraction;
 
-		private readonly IItemRepository _itemRepository = itemRepository;
-
 		private readonly IApiService _apiService = apiService;
 
-		const string ItemsNullMessage = "Items collection is null";
-
 		const string RequestUri = "/objects";
+
+		const string ItemsNullMessage = "Items collection is null";
 
 		public string?[] GetValuesOfAllMatchingProperties(string targetName)
 		{
@@ -88,33 +84,7 @@ namespace ObjectScouter.Services
 			return result;
 		}
 
-		private void FindItemsByPropertyNames(string target)
-		{
-			if (Items is null)
-			{
-				throw new InvalidOperationException(ItemsNullMessage);
-			}
-
-			foreach (Item item in Items)
-			{
-				IEnumerable<KeyValuePair<string, object>> properties =
-					item.GetNonNullProperties();
-
-				foreach (var property in properties)
-				{
-					if (property.Key.Contains(target, StringComparison.OrdinalIgnoreCase))
-					{
-						string propertyName = property.Key;
-						object propertyValue = property.Value;
-
-						_userInteraction.DisplayText(
-							$"Found an item, {item.Name}, with {propertyName}: {propertyValue}{Environment.NewLine}");
-					}
-				}
-			}
-		}
-
-		private async Task<IEnumerable<Item>> GetAllObjects()
+		public async Task<IEnumerable<Item>> GetAllObjects()
 		{
 			// Just to simulate background work
 			await Task.Delay(4000);
@@ -122,17 +92,6 @@ namespace ObjectScouter.Services
 			var result = await _apiService.ReadAsync<IEnumerable<Item>>(RequestUri);
 
 			return result;
-		}
-
-		private Task MainTask()
-		{
-			Task? mainTask = Task.Run(async () =>
-			{
-				await _itemRepository.LoadFromFileAsync();
-				Items = await GetAllObjects();
-				PropertyNames = GetAllProperties();
-			});
-			return mainTask;
 		}
 	}
 }

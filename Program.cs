@@ -19,7 +19,7 @@ namespace ObjectScouter
 			};
 			IItemRepository itemRepository = new ItemRepository();
 			IApiService apiServce = new ApiService(httpClient, itemRepository);
-			IItemService itemService = new ItemService(userInteraction, itemRepository, apiServce);
+			IItemService itemService = new ItemService(userInteraction, apiServce);
 			AsyncApiApp asyncApiApp = new(apiServce, userInteraction, itemRepository, itemService);
 
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
