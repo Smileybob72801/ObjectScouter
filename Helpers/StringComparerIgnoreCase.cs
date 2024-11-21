@@ -4,7 +4,7 @@
     {
         public bool Equals(string? x, string? y)
         {
-            return string.Equals(x, y, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public int GetHashCode(string obj)

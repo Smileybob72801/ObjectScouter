@@ -12,6 +12,10 @@ namespace ObjectScouter.App
 	{
         const string RequestUri = "/objects";
 
+        const string CreateOption = "Create";
+        const string SearchOption = "Search";
+        const string ListOption = "List";
+        const string DeleteOption = "Delete";
         const string ExitOption = "Exit";
 
         private readonly IApiReaderService _apiReaderService;
@@ -37,10 +41,10 @@ namespace ObjectScouter.App
 
             _menuOptions = new Dictionary<string, Action>(StringComparer.OrdinalIgnoreCase)
             {
-                { "Create", HandleCreateItem },
-                { "Search", HandleSearch },
-                { "List", HandleListItems },
-                { "Delete", HandleDeleteItem },
+                { CreateOption, HandleCreateItem },
+                { SearchOption, HandleSearch },
+                { ListOption, HandleListItems },
+                { DeleteOption, HandleDeleteItem },
                 { ExitOption, HandleExit }
             };
 		}
@@ -159,7 +163,12 @@ namespace ObjectScouter.App
 			}
 		}
 
-		private async void HandleDeleteItem()
+        private void HandleDeleteItem()
+        {
+            HandleDeleteItemAsync().GetAwaiter().GetResult();
+        }
+
+		private async Task HandleDeleteItemAsync()
 		{
             string userInput;
             string cancelCommand = "cancel";
@@ -275,8 +284,6 @@ namespace ObjectScouter.App
             return result;
         }
 
-        // TODO: Change method to first ask for property name, then property value to search for.
-        // Have a blank entry for value act as method does now, return all items with the property.
         private void FindItemsByPropertyNames(string target)
         {
 			if (_items is null)
