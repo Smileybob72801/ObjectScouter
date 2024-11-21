@@ -1,4 +1,6 @@
-﻿using ObjectScouter.Model;
+﻿using ObjectScouter.Helpers;
+using ObjectScouter.Model;
+using ObjectScouter.Repositories;
 using ObjectScouter.UserInteraction;
 using System;
 using System.Collections.Generic;
@@ -8,13 +10,25 @@ using System.Threading.Tasks;
 
 namespace ObjectScouter.Services
 {
-	internal class ItemService(IUserInteraction userInteraction) : IItemService
+	internal class ItemService(
+		IUserInteraction userInteraction,
+		IItemRepository itemRepository,
+		IApiService apiService) : IItemService
 	{
 		public IEnumerable<Item>? Items { get; set; }
 
+		public HashSet<string>? PropertyNames { get; set; }
+
 		private readonly IUserInteraction _userInteraction = userInteraction;
 
+		private readonly IItemRepository _itemRepository = itemRepository;
+
+		private readonly IApiService _apiService = apiService;
+
 		const string ItemsNullMessage = "Items collection is null";
+
+		const string RequestUri = "/objects";
+
 		public string?[] GetValuesOfAllMatchingProperties(string targetName)
 		{
 
@@ -49,6 +63,76 @@ namespace ObjectScouter.Services
 					}
 				}
 			}
+		}
+
+		public HashSet<string> GetAllProperties()
+		{
+			HashSet<string> result = new(new StringComparerIgnoreCase());
+
+			if (Items is null)
+			{
+				throw new InvalidOperationException(ItemsNullMessage);
+			}
+
+			foreach (Item item in Items)
+			{
+				IEnumerable<KeyValuePair<string, object>> properties =
+					item.GetNonNullProperties();
+
+				foreach (var property in properties)
+				{
+					result.Add(property.Key);
+				}
+			}
+
+			return result;
+		}
+
+		private void FindItemsByPropertyNames(string target)
+		{
+			if (Items is null)
+			{
+				throw new InvalidOperationException(ItemsNullMessage);
+			}
+
+			foreach (Item item in Items)
+			{
+				IEnumerable<KeyValuePair<string, object>> properties =
+					item.GetNonNullProperties();
+
+				foreach (var property in properties)
+				{
+					if (property.Key.Contains(target, StringComparison.OrdinalIgnoreCase))
+					{
+						string propertyName = property.Key;
+						object propertyValue = property.Value;
+
+						_userInteraction.DisplayText(
+							$"Found an item, {item.Name}, with {propertyName}: {propertyValue}{Environment.NewLine}");
+					}
+				}
+			}
+		}
+
+		private async Task<IEnumerable<Item>> GetAllObjects()
+		{
+			// Just to simulate background work
+			await Task.Delay(4000);
+
+			var result = await _apiService.ReadAsync<IEnumerable<Item>>(RequestUri);
+
+			return result;
+		}
+
+		private Task MainTask()
+		{
+			Task? mainTask = Task.Run(async () =>
+			{
+				await _itemRepository.LoadFromFileAsync();
+				Items = await GetAllObjects();
+				PropertyNames = GetAllProperties();
+			});
+			return mainTask;
 		}
 	}
 }

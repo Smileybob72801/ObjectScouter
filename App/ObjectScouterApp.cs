@@ -20,7 +20,7 @@ namespace ObjectScouter.App
 
         private readonly IApiService _apiReaderService;
 
-		private HashSet<string>? _propertyNames;
+		//private HashSet<string>? _propertyNames;
 
         private readonly IUserInteraction _userInteraction;
 
@@ -79,7 +79,7 @@ namespace ObjectScouter.App
 			{
 				await _itemRepository.LoadFromFileAsync();
 				_itemService.Items = await GetAllObjects();
-				_propertyNames = GetAllProperties();
+				_itemService.PropertyNames = GetAllProperties();
 			});
 			return mainTask;
 		}
@@ -137,9 +137,9 @@ namespace ObjectScouter.App
 
 		private async Task HandleSearchAsync()
         {
-			if (_propertyNames is not null)
+			if (_itemService.PropertyNames is not null)
 			{
-				_userInteraction.ListStrings([.. _propertyNames]);
+				_userInteraction.ListStrings([.. _itemService.PropertyNames]);
 
 				string targetName = _userInteraction.GetValidString(
                     $"Enter a property to search for:{Environment.NewLine}");
@@ -269,32 +269,6 @@ namespace ObjectScouter.App
             }
 
             return result;
-        }
-
-        private void FindItemsByPropertyNames(string target)
-        {
-			if (_itemService.Items is null)
-			{
-				throw new InvalidOperationException("No valid items to search.");
-			}
-
-			foreach (Item item in _itemService.Items)
-            {
-				IEnumerable<KeyValuePair<string, object>> properties =
-                    item.GetNonNullProperties();
-
-                foreach (var property in properties)
-                {
-                    if (property.Key.Contains(target, StringComparison.OrdinalIgnoreCase))
-                    {
-                        string propertyName = property.Key;
-                        object propertyValue = property.Value;
-
-                        _userInteraction.DisplayText(
-                            $"Found an item, {item.Name}, with {propertyName}: {propertyValue}{Environment.NewLine}");
-                    }
-                }
-            }
         }
 	}
 }

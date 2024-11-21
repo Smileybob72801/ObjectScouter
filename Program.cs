@@ -18,9 +18,9 @@ namespace ObjectScouter
 				BaseAddress = new Uri(ApiBaseAddress)
 			};
 			IItemRepository itemRepository = new ItemRepository();
-			IApiService apiReaderService = new ApiService(httpClient, itemRepository);
-			IItemService itemService = new ItemService(userInteraction);
-			AsyncApiApp asyncApiApp = new(apiReaderService, userInteraction, itemRepository, itemService);
+			IApiService apiServce = new ApiService(httpClient, itemRepository);
+			IItemService itemService = new ItemService(userInteraction, itemRepository, apiServce);
+			AsyncApiApp asyncApiApp = new(apiServce, userInteraction, itemRepository, itemService);
 
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
