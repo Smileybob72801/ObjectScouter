@@ -8,7 +8,7 @@ namespace ObjectScouter
 {
     internal class Program
 	{
-		static void Main()
+		static async Task Main()
 		{
 			const string ApiBaseAddress = "https://api.restful-api.dev/";
 
@@ -27,8 +27,7 @@ namespace ObjectScouter
 
 			try
 			{
-				Task appTask = asyncApiApp.Run();
-				appTask.GetAwaiter().GetResult();
+				await asyncApiApp.Run();
 			}
 			catch (Exception ex)
 			{
