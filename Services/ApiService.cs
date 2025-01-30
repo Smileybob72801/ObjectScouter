@@ -74,7 +74,7 @@ namespace ObjectScouter.Services
             }
         }
 
-		public async Task PutAync(string requestUri, Item item)
+		public async Task PutAsync(string requestUri, Item item)
 		{
 			string jsonContent = JsonSerializer.Serialize(item);
 
